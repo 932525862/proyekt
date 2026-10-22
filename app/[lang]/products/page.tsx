@@ -45,36 +45,40 @@ export default async function ProductsPage({ params }: PageProps<"/[lang]/produc
       </section>
 
       <section className="py-14 lg:py-20">
-        <div className="mx-auto grid max-w-7xl gap-5 px-4 sm:px-6 lg:grid-cols-2">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 px-4 sm:gap-5 sm:px-6">
           {categories.map((c) => (
             <Link
               key={c.slug}
               href={`/${lang}/products/${c.slug}`}
-              className="reveal group grid overflow-hidden rounded-lg border border-line bg-card transition-[border-color,box-shadow] duration-300 hover:border-accent/40 hover:shadow-[0_24px_50px_-24px_rgb(11_92_213/0.35)] sm:grid-cols-[0.9fr_1.1fr]"
+              className="reveal group grid overflow-hidden rounded-lg border border-line bg-card transition-[border-color,box-shadow] duration-300 hover:border-accent/40 hover:shadow-[0_24px_50px_-24px_rgb(11_92_213/0.35)] lg:grid-cols-[0.9fr_1.1fr]"
             >
-              <ProductImage media={categoryMedia[c.slug]} sizes="(min-width:1024px) 280px, (min-width:640px) 45vw, 100vw" className="aspect-[4/3] sm:aspect-auto sm:min-h-64" />
-              <div className="flex flex-col p-6 sm:border-l sm:border-line">
-                <div className="flex items-center justify-between eyebrow text-muted">
-                  <span className="flex items-center gap-2">
-                    <span className="grid size-7 place-items-center rounded-md bg-accent/10 text-accent">
+              <ProductImage media={categoryMedia[c.slug]} sizes="(min-width:1024px) 280px, 50vw" pad="p-3 sm:p-6" className="aspect-[4/3] lg:aspect-auto lg:min-h-64" />
+              <div className="flex flex-col border-t border-line p-3.5 sm:p-6 lg:border-l lg:border-t-0">
+                <div className="flex flex-col items-start gap-1 eyebrow text-muted sm:flex-row sm:items-center sm:justify-between">
+                  <span className="flex min-w-0 max-w-full items-center gap-2">
+                    <span className="hidden size-7 shrink-0 place-items-center rounded-md bg-accent/10 text-accent sm:grid">
                       <Icon name={c.slug} className="size-4" />
                     </span>
-                    {String(c.number).padStart(2, "0")} · {c.brand}
+                    <span className="truncate">
+                      <span className="hidden sm:inline">{String(c.number).padStart(2, "0")} · </span>
+                      {c.brand}
+                    </span>
                   </span>
-                  <span className="text-accent">
+                  <span className="shrink-0 text-accent">
                     {modelCount(c)} {d.catalog.models}
                   </span>
                 </div>
-                <h2 className="mt-3 text-xl font-semibold tracking-tight">{tr(c.name, lang)}</h2>
-                <p className="mt-2 line-clamp-3 text-[15px] leading-relaxed text-muted">{tr(c.description, lang)}</p>
-                <div className="mt-4 flex flex-wrap gap-1.5">
+                <h2 className="mt-2 text-[15px] font-semibold leading-snug tracking-tight sm:mt-3 sm:text-xl">{tr(c.name, lang)}</h2>
+                <p className="mt-1 text-xs leading-snug text-muted sm:hidden">{tr(c.short, lang)}</p>
+                <p className="mt-2 hidden text-[15px] leading-relaxed text-muted sm:line-clamp-3">{tr(c.description, lang)}</p>
+                <div className="mt-4 hidden flex-wrap gap-1.5 sm:flex">
                   {c.groups.slice(0, 4).map((g) => (
                     <span key={typeof g.name === "string" ? g.name : g.name.en} className="rounded-sm bg-sunk px-2 py-1 text-xs font-medium text-ink/70">
                       {typeof g.name === "string" ? g.name : tr(g.name, lang)}
                     </span>
                   ))}
                 </div>
-                <span className="mt-auto flex items-center gap-1.5 pt-5 text-sm font-semibold text-accent">
+                <span className="mt-auto flex items-center gap-1.5 pt-3 text-[13px] font-semibold text-accent sm:pt-5 sm:text-sm">
                   {d.catalog.request}
                   <Icon name="arrow" className="size-4 transition-transform group-hover:translate-x-1" />
                 </span>

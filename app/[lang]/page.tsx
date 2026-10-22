@@ -173,29 +173,29 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             </Link>
           </div>
 
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-4 lg:grid-cols-4">
             {categories.map((c) => (
               <Link
                 key={c.slug}
                 href={`/${lang}/products/${c.slug}`}
                 className="reveal group flex flex-col overflow-hidden rounded-lg border border-line bg-card transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-[0_24px_50px_-24px_rgb(11_92_213/0.35)]"
               >
-                <ProductImage media={categoryMedia[c.slug]} sizes="(min-width:1024px) 300px, (min-width:640px) 50vw, 100vw" className="aspect-[4/3]" />
-                <div className="flex flex-1 flex-col border-t border-line p-5">
-                  <div className="flex items-center justify-between eyebrow text-muted">
-                    <span className="flex items-center gap-2">
-                      <span className="grid size-7 place-items-center rounded-md bg-accent/10 text-accent">
+                <ProductImage media={categoryMedia[c.slug]} sizes="(min-width:1024px) 300px, 50vw" pad="p-3 sm:p-6" className="aspect-[4/3]" />
+                <div className="flex flex-1 flex-col border-t border-line p-3.5 sm:p-5">
+                  <div className="flex flex-col items-start gap-1 eyebrow text-muted sm:flex-row sm:items-center sm:justify-between">
+                    <span className="flex min-w-0 max-w-full items-center gap-2">
+                      <span className="hidden size-7 shrink-0 place-items-center rounded-md bg-accent/10 text-accent sm:grid">
                         <Icon name={c.slug} className="size-4" />
                       </span>
-                      {c.brand}
+                      <span className="truncate">{c.brand}</span>
                     </span>
-                    <span className="text-accent">
+                    <span className="shrink-0 text-accent">
                       {modelCount(c)} {d.hero.models}
                     </span>
                   </div>
-                  <h3 className="mt-3 text-lg font-semibold leading-snug tracking-tight">{tr(c.name, lang)}</h3>
-                  <p className="mt-1 text-sm text-muted">{tr(c.short, lang)}</p>
-                  <span className="mt-auto flex items-center gap-1.5 pt-5 text-sm font-semibold text-accent opacity-80 transition-opacity group-hover:opacity-100">
+                  <h3 className="mt-2 text-[15px] font-semibold leading-snug tracking-tight sm:mt-3 sm:text-lg">{tr(c.name, lang)}</h3>
+                  <p className="mt-1 text-xs leading-snug text-muted sm:text-sm">{tr(c.short, lang)}</p>
+                  <span className="mt-auto flex items-center gap-1.5 pt-3 text-[13px] font-semibold text-accent opacity-80 transition-opacity group-hover:opacity-100 sm:pt-5 sm:text-sm">
                     {d.catalog.request}
                     <Icon name="arrow" className="size-4 transition-transform group-hover:translate-x-1" />
                   </span>
@@ -214,28 +214,36 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             <h2 className={h2}>{d.featured.title}</h2>
           </div>
 
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((p) => {
+          <div className="mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-5 lg:grid-cols-3">
+            {featured.map((p, i) => {
               const cat = getCategory(p.slug)!;
+              // toq sonli ro'yxatda oxirgi kartochka telefonda butun qatorni egallaydi
+              const wide = featured.length % 2 === 1 && i === featured.length - 1;
               return (
                 <Link
                   key={p.name}
                   href={`/${lang}/products/${p.slug}`}
-                  className="reveal group relative flex flex-col overflow-hidden rounded-lg border border-line bg-paper transition-[border-color,box-shadow] duration-300 hover:border-accent/40 hover:shadow-[0_24px_50px_-24px_rgb(11_92_213/0.35)]"
+                  className={`reveal group relative flex flex-col ${wide ? "col-span-2 lg:col-span-1" : ""} overflow-hidden rounded-lg border border-line bg-paper transition-[border-color,box-shadow] duration-300 hover:border-accent/40 hover:shadow-[0_24px_50px_-24px_rgb(11_92_213/0.35)]`}
                 >
                   <div className="relative">
-                    <ProductImage media={featuredMedia[p.name]} sizes="(min-width:1024px) 400px, (min-width:640px) 50vw, 100vw" className="aspect-[16/11]" pad="p-8" />
-                    <span className="absolute left-4 top-4 rounded-sm bg-band px-2.5 py-1 text-xs font-semibold tech text-white">{p.tag}</span>
+                    <ProductImage
+                      media={featuredMedia[p.name]}
+                      sizes={wide ? "(min-width:1024px) 400px, 100vw" : "(min-width:1024px) 400px, 50vw"}
+                      className={wide ? "aspect-[2/1] lg:aspect-[16/11]" : "aspect-[4/3] sm:aspect-[16/11]"}
+                      pad="p-3 sm:p-8"
+                    />
+                    <span className="absolute left-2 top-2 max-w-[calc(100%-1rem)] truncate rounded-sm bg-band px-2 py-0.5 text-[11px] font-semibold tech text-white sm:left-4 sm:top-4 sm:px-2.5 sm:py-1 sm:text-xs">{p.tag}</span>
                   </div>
-                  <div className="flex flex-1 flex-col p-6">
-                    <span className="eyebrow text-muted">
-                      {cat.brand} · {tr(cat.name, lang)}
+                  <div className="flex flex-1 flex-col p-3.5 sm:p-6">
+                    <span className="truncate eyebrow text-muted">
+                      {cat.brand}
+                      <span className="hidden sm:inline"> · {tr(cat.name, lang)}</span>
                     </span>
-                    <h3 className="mt-2 text-2xl font-semibold tracking-tight">{p.name}</h3>
-                    <p className="mt-1.5 text-muted">{tr(p.spec, lang)}</p>
-                    <span className="mt-auto flex items-center justify-between border-t border-line pt-4 text-sm font-semibold" style={{ marginTop: "1.5rem" }}>
+                    <h3 className="mt-1.5 text-base font-semibold leading-snug tracking-tight sm:mt-2 sm:text-2xl">{p.name}</h3>
+                    <p className="mb-3 mt-1 text-xs leading-snug text-muted sm:mb-6 sm:mt-1.5 sm:text-base">{tr(p.spec, lang)}</p>
+                    <span className="mt-auto flex items-center justify-between border-t border-line pt-3 text-[13px] font-semibold sm:pt-4 sm:text-sm">
                       <span className="text-accent">{d.nav.quote}</span>
-                      <Icon name="arrowUp" className="size-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
+                      <Icon name="arrowUp" className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent sm:size-5" />
                     </span>
                   </div>
                 </Link>
@@ -262,28 +270,33 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             </div>
           </div>
 
-          <ol className="relative mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <ol className="relative mt-10 grid grid-cols-2 gap-3 sm:mt-14 sm:gap-4 lg:grid-cols-5">
             <span aria-hidden className="absolute inset-x-[10%] top-[calc(50%-2rem)] hidden h-px bg-gradient-to-r from-accent/0 via-accent/50 to-accent/0 lg:block" />
             {d.pharma.steps.map((step, i) => {
               const s = pharmaSteps[i];
               return (
-                <li key={step.t} className="reveal relative">
+                <li key={step.t} className={`reveal relative ${i === d.pharma.steps.length - 1 ? "col-span-2 lg:col-span-1" : ""}`}>
                   <Link
                     href={`/${lang}/products/${s.slug}`}
                     className="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-card transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-[0_24px_50px_-24px_rgb(11_92_213/0.35)]"
                   >
                     <div className="relative">
-                      <ProductImage media={s.media} sizes="(min-width:1024px) 240px, (min-width:640px) 50vw, 100vw" pad="p-6" className="aspect-square" />
-                      <span className="absolute left-3 top-3 rounded-sm bg-band px-2 py-1 text-xs font-semibold tech text-white">{String(i + 1).padStart(2, "0")}</span>
+                      <ProductImage
+                        media={s.media}
+                        sizes="(min-width:1024px) 240px, 50vw"
+                        pad="p-3 sm:p-6"
+                        className={i === d.pharma.steps.length - 1 ? "aspect-[2/1] lg:aspect-square" : "aspect-square"}
+                      />
+                      <span className="absolute left-2 top-2 rounded-sm bg-band px-2 py-0.5 text-[11px] font-semibold tech text-white sm:left-3 sm:top-3 sm:py-1 sm:text-xs">{String(i + 1).padStart(2, "0")}</span>
                     </div>
-                    <div className="flex flex-1 flex-col border-t border-line p-5">
-                      <span className="flex items-center gap-2.5">
-                        <span className="grid size-8 place-items-center rounded-md bg-accent text-white">
-                          <Icon name={s.icon} className="size-[18px]" />
+                    <div className="flex flex-1 flex-col border-t border-line p-3.5 sm:p-5">
+                      <span className="flex items-center gap-2 sm:gap-2.5">
+                        <span className="grid size-7 shrink-0 place-items-center rounded-md bg-accent text-white sm:size-8">
+                          <Icon name={s.icon} className="size-4 sm:size-[18px]" />
                         </span>
-                        <h3 className="text-lg font-semibold tracking-tight">{step.t}</h3>
+                        <h3 className="text-[15px] font-semibold tracking-tight sm:text-lg">{step.t}</h3>
                       </span>
-                      <p className="mt-3 text-sm leading-relaxed text-muted">{step.d}</p>
+                      <p className="mt-2 text-xs leading-relaxed text-muted sm:mt-3 sm:text-sm">{step.d}</p>
                     </div>
                   </Link>
                 </li>
