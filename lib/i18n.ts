@@ -1,0 +1,543 @@
+export const locales = ["uz", "ru", "en"] as const;
+export type Locale = (typeof locales)[number];
+export const defaultLocale: Locale = "uz";
+
+export function isLocale(value: string): value is Locale {
+  return (locales as readonly string[]).includes(value);
+}
+
+/** Til tanlagichda ko'rsatiladigan nomlar (har biri o'z tilida) */
+export const localeNames: Record<Locale, string> = { uz: "O'zbekcha", ru: "Русский", en: "English" };
+export const ogLocales: Record<Locale, string> = { uz: "uz_UZ", ru: "ru_RU", en: "en_US" };
+
+/** Tanlangan til shu cookie'da saqlanadi (proxy.ts uni o'qiydi) */
+export const localeCookie = "NEXT_LOCALE";
+
+/** Saytning ommaviy manzili — production'da NEXT_PUBLIC_SITE_URL bilan belgilang */
+export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://novalab.uz").replace(/\/$/, "");
+
+/** hreflang muqobillari: path — tilsiz qism, masalan "/products/nmr" */
+export function alternates(lang: Locale, path = "") {
+  return {
+    canonical: `/${lang}${path}`,
+    languages: { ...Object.fromEntries(locales.map((l) => [l, `/${l}${path}`])), "x-default": `/${defaultLocale}${path}` },
+  };
+}
+
+/** Uch tilli matn */
+export type T = Record<Locale, string>;
+export const tr = (text: T, lang: Locale) => text[lang];
+
+const uz = {
+  meta: {
+    title: "NovaLab — Analitik uskunalar, reagentlar va laboratoriya servisi",
+    description:
+      "YaMR va mass-spektrometrlar, HHX tizimlari, dissolyutsiya va ingalyatsion testlar uskunalari, tarozilar, reagentlar va ISO 17034 standart namunalari. Yetkazib berish, o'rnatish, validatsiya va o'qitish — Toshkent.",
+  },
+  nav: {
+    products: "Mahsulotlar",
+    services: "Xizmatlar",
+    applications: "Sohalar",
+    about: "Kompaniya",
+    faq: "Savollar",
+    contact: "Aloqa",
+    quote: "Narx so'rash",
+    menu: "Menyu",
+    theme: "Mavzuni almashtirish",
+    language: "Til",
+    top: "Yuqoriga",
+  },
+  hero: {
+    eyebrow: "Analitik uskunalar distribyutori · Toshkent",
+    title1: "Laboratoriyangiz uchun",
+    titleEm: "aniqlik",
+    title2: "— uskunadan reagentgacha.",
+    text: "Bruker, Magritek, KNAUER, KERN, LGC va Copley Scientific mahsulotlarini yetkazib beramiz, o'rnatamiz, validatsiya qilamiz va xodimlaringizni o'qitamiz. Bitta hamkor — butun analitik zanjir.",
+    primary: "Katalogni ko'rish",
+    secondary: "Mutaxassis bilan gaplashish",
+    gridCaption: "Mahsulot yo'nalishlari — elementni tanlang",
+    models: "model",
+  },
+  trust: [
+    { k: "2021", v: "yildan beri bozorda" },
+    { k: "220+", v: "model katalogda" },
+    { k: "6", v: "jahon ishlab chiqaruvchisi" },
+    { k: "24 soat", v: "ichida tijorat taklifi" },
+  ],
+  brands: "Rasmiy hamkorlarimiz",
+  lines: {
+    eyebrow: "Mahsulot yo'nalishlari",
+    title: "Analitik laboratoriya uchun to'liq portfel",
+    text: "Yuqori aniqlikdagi spektrometrlardan tortib kundalik sarf materiallarigacha — yetakchi Yevropa ishlab chiqaruvchilarining sertifikatlangan mahsulotlari.",
+  },
+  industriesTitle: "Asosiy yo'nalishlar",
+  pharma: {
+    eyebrow: "Farmatsevtik sifat nazorati",
+    title: "Kukundan tayyor dori shaklichagacha — farmakopeya testlari to'liq zanjiri",
+    text: "Copley Scientific uskunalari bilan qattiq, yarim qattiq va ingalyatsion dori shakllarining barcha farmakopeya testlarini bitta yetkazib beruvchidan yoping: o'rnatish, IQ/OQ va metodik o'qitish bilan.",
+    steps: [
+      { t: "Kukun", d: "Sochiluvchanlik, sochma va zichlashtirilgan zichlik" },
+      { t: "Tabletka", d: "Sinish kuchi, friabilitet va qalinlik" },
+      { t: "Parchalanish", d: "Tabletka, kapsula va shamchalar" },
+      { t: "Dissolyutsiya", d: "1, 2, 5, 6-usullar · 6 va 8 idish" },
+      { t: "Ingalyatsiya", d: "APSD va DDU: NGI, ACI, DUSA" },
+    ],
+    standards: "Qo'llab-quvvatlanadigan farmakopeya bo'limlari",
+  },
+  featured: {
+    eyebrow: "Tanlangan uskunalar",
+    title: "Laboratoriyalar eng ko'p so'raydigan tizimlar",
+    all: "Butun katalog",
+  },
+  services: {
+    eyebrow: "Xizmatlar",
+    title: "Uskunadan tashqari — tahlil, ma'lumot va servis",
+    text: "O'z laboratoriyamizda namunalaringizni tahlil qilamiz, natijalarni statistik qayta ishlaymiz va uskunangizni ishchi holatda saqlaymiz.",
+  },
+  process: {
+    eyebrow: "Qanday ishlaymiz",
+    title: "So'rovdan ishga tushirishgacha",
+    steps: [
+      { t: "Vazifa", d: "Nimani, qaysi matritsada va qanday aniqlikda o'lchash kerakligini aniqlaymiz." },
+      { t: "Konfiguratsiya", d: "Uskuna, kolonka, reagent va dasturiy ta'minotni vazifaga moslab tanlaymiz." },
+      { t: "Yetkazish", d: "Bojxona, logistika va sertifikatlashni to'liq o'z zimmamizga olamiz." },
+      { t: "O'rnatish va IQ/OQ", d: "Montaj, kalibrlash va validatsiya hujjatlari bilan topshiramiz." },
+      { t: "O'qitish va servis", d: "Operatorlarni o'qitamiz, kafolat va servis xizmatini ko'rsatamiz." },
+    ],
+  },
+  apps: {
+    eyebrow: "Qo'llanilish sohalari",
+    title: "Qaysi soha bo'lmasin — mos analitik yechim bor",
+  },
+  about: {
+    eyebrow: "Kompaniya",
+    title: "Distribyutor emas — analitik hamkor",
+    p1: "NovaLab 2021-yilda Toshkentda olimlar va tadbirkorlar tomonidan tashkil etilgan. Biz laboratoriya uskunalari, sarf materiallari, kimyoviy reagentlar va sertifikatlangan standart namunalarni yetakchi ishlab chiqaruvchilardan yetkazib beramiz.",
+    p2: "Lekin asosiy qadriyatimiz — bilim. Mijozlarimizga ishlab chiqarish va sifat nazoratidagi analitik vazifalarni xalqaro standartlar asosida hal qilishda yordam beramiz.",
+    est: "Tashkil etilgan",
+    mission: "Missiya",
+    missionT: "O'zbekiston sanoati va ilm-faniga ishonchli yetkazib beruvchi hamda analitik bilimlar markazi bo'lish.",
+    vision: "Vizyon",
+    visionT: "Olimlar va sanoat uchun eng ilg'or analitik yechimlarni taqdim etib, kashfiyot va unumdorlikka hissa qo'shish.",
+    points: [
+      "Ishlab chiqaruvchilarning rasmiy hamkori",
+      "Sertifikatlangan servis muhandislari",
+      "IQ/OQ/PQ validatsiya hujjatlari",
+      "O'zbek, rus va ingliz tillarida o'qitish",
+    ],
+  },
+  faq: {
+    eyebrow: "Savol-javob",
+    title: "Ko'p beriladigan savollar",
+    text: "Javobni topmadingizmi? Yozing — mutaxassis bir ish kuni ichida bog'lanadi.",
+    items: [
+      { q: "Uskunani yetkazib berish qancha vaqt oladi?", a: "Ombordagi reagent va tarozilar 3–7 kunda yetkaziladi. Buyurtma asosidagi analitik tizimlar (YaMR, MS, HHX) odatda 6–12 hafta, bojxona rasmiylashtiruvi bilan birga." },
+      { q: "O'rnatish va o'qitish narxga kiradimi?", a: "Ha. Analitik tizimlar uchun montaj, ishga tushirish, IQ/OQ va operatorlar uchun boshlang'ich kurs tijorat taklifiga kiritiladi." },
+      { q: "Kafolat va servis qanday ishlaydi?", a: "Ishlab chiqaruvchi kafolati 12–24 oy. Kafolatdan keyin rejali texnik xizmat, ehtiyot qismlar va qayta validatsiya bo'yicha shartnoma tuzamiz." },
+      { q: "Standart namunalar sertifikat bilan keladimi?", a: "Ha, barcha standart namunalar ISO 17034 bo'yicha akkreditatsiyalangan ishlab chiqaruvchilardan, analiz sertifikati (CoA) bilan yetkaziladi." },
+      { q: "Namunalarimizni sizda tahlil qildirsak bo'ladimi?", a: "Albatta. Oziq-ovqat, farmatsevtika va biologik suyuqliklarni molekulyar tahlil qilamiz, hisobotni statistik ishlov bilan beramiz." },
+      { q: "Uskunalar farmakopeya talablariga mosmi?", a: "Ha. Dissolyutsiya, parchalanish, friabilitet, qattiqlik, kukun va ingalyatsion testlar uskunalari Ph. Eur. va USP'ning tegishli bo'limlariga (masalan, 2.9.3 / <711>, 2.9.18 / <601>) muvofiq; har bir model kartochkasida muvofiqlik ko'rsatilgan." },
+      { q: "Dissolyutsiya testerlarini kvalifikatsiya qilasizmi?", a: "Ha. O'rnatishda IQ/OQ, keyin esa davriy mexanik kvalifikatsiya (MQ) va PVT o'tkazamiz: val tezligi, tebranish, markazlashuv va haroratni o'lchab, hujjatlangan hisobot beramiz." },
+      { q: "To'lov qanday amalga oshiriladi?", a: "Yuridik shaxslar bilan shartnoma asosida so'mda ishlaymiz. Davlat xaridlari va grant loyihalari uchun kerakli hujjatlarni tayyorlaymiz." },
+    ],
+  },
+  contact: {
+    eyebrow: "Aloqa",
+    title: "Vazifangizni ayting — yechimni biz topamiz",
+    text: "Formani to'ldiring: mutaxassis bir ish kuni ichida bog'lanadi va tijorat taklifini tayyorlaydi.",
+    phone: "Telefon",
+    email: "Email",
+    address: "Manzil",
+    addressV: "Toshkent sh., O'zbekiston",
+    hours: "Ish vaqti",
+    hoursV: "Du–Ju, 9:00–18:00",
+  },
+  form: {
+    name: "Ismingiz",
+    company: "Tashkilot",
+    phone: "Telefon",
+    email: "Email",
+    interest: "Yo'nalish",
+    interestAny: "Tanlanmagan",
+    message: "Xabar",
+    messageP: "Qaysi uskuna yoki tahlil kerak? Namuna turi, kutilayotgan hajm...",
+    clear: "Tozalash",
+    consent: "Shaxsiy ma'lumotlarimni qayta ishlashga roziman",
+    submit: "So'rov yuborish",
+    sending: "Yuborilmoqda...",
+    ok: "Rahmat! So'rovingiz qabul qilindi — tez orada bog'lanamiz.",
+    err: "Ism, telefon va roziligingizni tekshiring.",
+    fail: "Yuborib bo'lmadi. Iltimos, qayta urinib ko'ring yoki qo'ng'iroq qiling.",
+  },
+  catalog: {
+    eyebrow: "Katalog",
+    title: "Mahsulotlar",
+    text: "O'n ikki yo'nalish, 220 dan ortiq model. Kerakli modelni toping va narxini so'rang.",
+    search: "Model bo'yicha qidirish...",
+    empty: "Hech narsa topilmadi.",
+    request: "So'rash",
+    requestFor: "Tanlangan model",
+    back: "Barcha yo'nalishlar",
+    quoteTitle: "Ushbu yo'nalish bo'yicha so'rov",
+    other: "Boshqa yo'nalishlar",
+    models: "model",
+    brand: "Ishlab chiqaruvchi",
+    all: "Barchasi",
+    imageNote: "Rasmlar ma'lumot uchun berilgan; konfiguratsiya va tashqi ko'rinish farq qilishi mumkin.",
+    cat: "Kat. №",
+    standards: "Muvofiqlik",
+  },
+  footer: {
+    about: "Analitik uskunalar, reagentlar va sertifikatlangan standart namunalar distribyutori. Toshkent, O'zbekiston.",
+    rights: "Barcha huquqlar himoyalangan.",
+    company: "Kompaniya",
+  },
+};
+
+export type Dictionary = typeof uz;
+
+const ru: Dictionary = {
+  meta: {
+    title: "NovaLab — аналитическое оборудование, реагенты и сервис",
+    description:
+      "ЯМР и масс-спектрометры, системы ВЭЖХ, тестеры растворения и ингаляционных препаратов, весы, реагенты и стандартные образцы ISO 17034. Поставка, монтаж, валидация и обучение — Ташкент.",
+  },
+  nav: {
+    products: "Продукция",
+    services: "Услуги",
+    applications: "Отрасли",
+    about: "Компания",
+    faq: "Вопросы",
+    contact: "Контакты",
+    quote: "Запросить цену",
+    menu: "Меню",
+    theme: "Сменить тему",
+    language: "Язык",
+    top: "Наверх",
+  },
+  hero: {
+    eyebrow: "Дистрибьютор аналитического оборудования · Ташкент",
+    title1: "Для вашей лаборатории —",
+    titleEm: "точность",
+    title2: "от прибора до реагента.",
+    text: "Поставляем, устанавливаем и валидируем оборудование Bruker, Magritek, KNAUER, KERN, LGC и Copley Scientific, обучаем ваш персонал. Один партнёр — вся аналитическая цепочка.",
+    primary: "Смотреть каталог",
+    secondary: "Поговорить со специалистом",
+    gridCaption: "Направления продукции — выберите элемент",
+    models: "мод.",
+  },
+  trust: [
+    { k: "2021", v: "год основания" },
+    { k: "220+", v: "моделей в каталоге" },
+    { k: "6", v: "мировых производителей" },
+    { k: "24 ч", v: "на коммерческое предложение" },
+  ],
+  brands: "Наши официальные партнёры",
+  lines: {
+    eyebrow: "Направления продукции",
+    title: "Полный портфель для аналитической лаборатории",
+    text: "От высокоточных спектрометров до ежедневных расходных материалов — сертифицированная продукция ведущих европейских производителей.",
+  },
+  industriesTitle: "Ключевые направления",
+  pharma: {
+    eyebrow: "Фармацевтический контроль качества",
+    title: "От порошка до готовой лекарственной формы — полная цепочка фармакопейных тестов",
+    text: "С оборудованием Copley Scientific все фармакопейные тесты твёрдых, мягких и ингаляционных форм — у одного поставщика: с монтажом, IQ/OQ и методическим обучением.",
+    steps: [
+      { t: "Порошок", d: "Сыпучесть, насыпная плотность и плотность после уплотнения" },
+      { t: "Таблетка", d: "Прочность на излом, истираемость и толщина" },
+      { t: "Распадаемость", d: "Таблетки, капсулы и суппозитории" },
+      { t: "Растворение", d: "Методы 1, 2, 5, 6 · 6 и 8 сосудов" },
+      { t: "Ингаляция", d: "APSD и DDU: NGI, ACI, DUSA" },
+    ],
+    standards: "Поддерживаемые разделы фармакопей",
+  },
+  featured: {
+    eyebrow: "Избранное оборудование",
+    title: "Системы, которые чаще всего запрашивают лаборатории",
+    all: "Весь каталог",
+  },
+  services: {
+    eyebrow: "Услуги",
+    title: "Больше, чем оборудование — анализ, данные и сервис",
+    text: "Анализируем ваши образцы в собственной лаборатории, обрабатываем результаты статистически и поддерживаем приборы в рабочем состоянии.",
+  },
+  process: {
+    eyebrow: "Как мы работаем",
+    title: "От запроса до запуска",
+    steps: [
+      { t: "Задача", d: "Определяем, что, в какой матрице и с какой точностью нужно измерять." },
+      { t: "Конфигурация", d: "Подбираем прибор, колонки, реагенты и ПО под вашу задачу." },
+      { t: "Поставка", d: "Полностью берём на себя таможню, логистику и сертификацию." },
+      { t: "Монтаж и IQ/OQ", d: "Сдаём с монтажом, калибровкой и пакетом валидационных документов." },
+      { t: "Обучение и сервис", d: "Обучаем операторов, обеспечиваем гарантию и сервис." },
+    ],
+  },
+  apps: {
+    eyebrow: "Области применения",
+    title: "Какой бы ни была отрасль — есть аналитическое решение",
+  },
+  about: {
+    eyebrow: "Компания",
+    title: "Не просто дистрибьютор — аналитический партнёр",
+    p1: "NovaLab основана в 2021 году в Ташкенте учёными и предпринимателями. Мы поставляем лабораторное оборудование, расходные материалы, химические реактивы и сертифицированные стандартные образцы ведущих производителей.",
+    p2: "Но главная наша ценность — знания. Мы помогаем клиентам решать аналитические задачи производства и контроля качества по международным стандартам.",
+    est: "Основана",
+    mission: "Миссия",
+    missionT: "Быть надёжным поставщиком и центром аналитических знаний для промышленности и науки Узбекистана.",
+    vision: "Видение",
+    visionT: "Давать учёным и промышленности самые передовые аналитические решения, ускоряя открытия и рост производительности.",
+    points: [
+      "Официальный партнёр производителей",
+      "Сертифицированные сервисные инженеры",
+      "Валидационные документы IQ/OQ/PQ",
+      "Обучение на узбекском, русском и английском",
+    ],
+  },
+  faq: {
+    eyebrow: "Вопросы и ответы",
+    title: "Частые вопросы",
+    text: "Не нашли ответ? Напишите — специалист свяжется в течение рабочего дня.",
+    items: [
+      { q: "Сколько времени занимает поставка?", a: "Реактивы и весы со склада — 3–7 дней. Аналитические системы под заказ (ЯМР, МС, ВЭЖХ) обычно 6–12 недель с учётом таможенного оформления." },
+      { q: "Монтаж и обучение входят в стоимость?", a: "Да. Для аналитических систем в коммерческое предложение включены монтаж, запуск, IQ/OQ и базовый курс для операторов." },
+      { q: "Как работают гарантия и сервис?", a: "Гарантия производителя — 12–24 месяца. После неё заключаем договор на плановое ТО, запчасти и повторную валидацию." },
+      { q: "Стандартные образцы поставляются с сертификатом?", a: "Да, все стандартные образцы — от производителей, аккредитованных по ISO 17034, с сертификатом анализа (CoA)." },
+      { q: "Можно ли сдать вам образцы на анализ?", a: "Конечно. Проводим молекулярный анализ пищевой, фармацевтической продукции и биологических жидкостей с отчётом и статистической обработкой." },
+      { q: "Соответствует ли оборудование фармакопеям?", a: "Да. Оборудование для растворения, распадаемости, истираемости, прочности, порошков и ингаляционных тестов соответствует разделам Ph. Eur. и USP (например, 2.9.3 / <711>, 2.9.18 / <601>); соответствие указано в карточке каждой модели." },
+      { q: "Проводите ли вы квалификацию тестеров растворения?", a: "Да. При вводе — IQ/OQ, далее периодическая механическая квалификация (MQ) и PVT: скорость вала, вибрация, центровка и температура с документированным отчётом." },
+      { q: "Как происходит оплата?", a: "Работаем с юрлицами по договору в сумах. Готовим документы для госзакупок и грантовых проектов." },
+    ],
+  },
+  contact: {
+    eyebrow: "Контакты",
+    title: "Опишите задачу — решение подберём мы",
+    text: "Заполните форму: специалист свяжется в течение рабочего дня и подготовит коммерческое предложение.",
+    phone: "Телефон",
+    email: "Email",
+    address: "Адрес",
+    addressV: "г. Ташкент, Узбекистан",
+    hours: "Часы работы",
+    hoursV: "Пн–Пт, 9:00–18:00",
+  },
+  form: {
+    name: "Ваше имя",
+    company: "Организация",
+    phone: "Телефон",
+    email: "Email",
+    interest: "Направление",
+    interestAny: "Не выбрано",
+    message: "Сообщение",
+    messageP: "Какой прибор или анализ нужен? Тип образцов, ожидаемый объём...",
+    clear: "Очистить",
+    consent: "Согласен на обработку персональных данных",
+    submit: "Отправить запрос",
+    sending: "Отправка...",
+    ok: "Спасибо! Запрос принят — скоро свяжемся.",
+    err: "Проверьте имя, телефон и согласие.",
+    fail: "Не удалось отправить. Попробуйте ещё раз или позвоните нам.",
+  },
+  catalog: {
+    eyebrow: "Каталог",
+    title: "Продукция",
+    text: "Двенадцать направлений, более 220 моделей. Найдите нужную модель и запросите цену.",
+    search: "Поиск по модели...",
+    empty: "Ничего не найдено.",
+    request: "Запросить",
+    requestFor: "Выбранная модель",
+    back: "Все направления",
+    quoteTitle: "Запрос по этому направлению",
+    other: "Другие направления",
+    models: "мод.",
+    brand: "Производитель",
+    all: "Все",
+    imageNote: "Изображения приведены для справки; комплектация и внешний вид могут отличаться.",
+    cat: "Кат. №",
+    standards: "Соответствие",
+  },
+  footer: {
+    about: "Дистрибьютор аналитического оборудования, реагентов и сертифицированных стандартных образцов. Ташкент, Узбекистан.",
+    rights: "Все права защищены.",
+    company: "Компания",
+  },
+};
+
+const en: Dictionary = {
+  meta: {
+    title: "NovaLab — Analytical instruments, reagents & lab services",
+    description:
+      "NMR and mass spectrometers, HPLC systems, dissolution and inhaler testing equipment, balances, reagents and ISO 17034 reference materials. Supply, installation, validation and training — Tashkent.",
+  },
+  nav: {
+    products: "Products",
+    services: "Services",
+    applications: "Applications",
+    about: "Company",
+    faq: "FAQ",
+    contact: "Contact",
+    quote: "Request a quote",
+    menu: "Menu",
+    theme: "Toggle theme",
+    language: "Language",
+    top: "Back to top",
+  },
+  hero: {
+    eyebrow: "Analytical instrument distributor · Tashkent",
+    title1: "Bring",
+    titleEm: "precision",
+    title2: "to your lab — from instrument to reagent.",
+    text: "We supply, install and validate instruments from Bruker, Magritek, KNAUER, KERN, LGC and Copley Scientific, and train your staff. One partner for the entire analytical chain.",
+    primary: "Browse the catalog",
+    secondary: "Talk to a specialist",
+    gridCaption: "Product lines — pick an element",
+    models: "models",
+  },
+  trust: [
+    { k: "2021", v: "founded" },
+    { k: "220+", v: "models in catalog" },
+    { k: "6", v: "global manufacturers" },
+    { k: "24 h", v: "to a commercial offer" },
+  ],
+  brands: "Our official partners",
+  lines: {
+    eyebrow: "Product lines",
+    title: "A complete portfolio for the analytical lab",
+    text: "From high-precision spectrometers to everyday consumables — certified products from leading European manufacturers.",
+  },
+  industriesTitle: "Key sectors",
+  pharma: {
+    eyebrow: "Pharmaceutical quality control",
+    title: "From powder to finished dosage form — the complete chain of pharmacopoeial tests",
+    text: "With Copley Scientific equipment, every pharmacopoeial test for solid, semisolid and inhaled dosage forms comes from one supplier — with installation, IQ/OQ and method training.",
+    steps: [
+      { t: "Powder", d: "Flowability, bulk and tapped density" },
+      { t: "Tablet", d: "Breaking force, friability and thickness" },
+      { t: "Disintegration", d: "Tablets, capsules and suppositories" },
+      { t: "Dissolution", d: "Methods 1, 2, 5, 6 · 6 and 8 vessels" },
+      { t: "Inhalation", d: "APSD and DDU: NGI, ACI, DUSA" },
+    ],
+    standards: "Supported pharmacopoeial chapters",
+  },
+  featured: {
+    eyebrow: "Featured instruments",
+    title: "The systems labs ask us about most",
+    all: "Full catalog",
+  },
+  services: {
+    eyebrow: "Services",
+    title: "Beyond hardware — analysis, data and service",
+    text: "We analyse your samples in our own lab, process the results statistically and keep your instruments running.",
+  },
+  process: {
+    eyebrow: "How we work",
+    title: "From request to first run",
+    steps: [
+      { t: "Brief", d: "We define what you measure, in which matrix and at what precision." },
+      { t: "Configure", d: "We match the instrument, columns, reagents and software to your task." },
+      { t: "Deliver", d: "We handle customs, logistics and certification end to end." },
+      { t: "Install & IQ/OQ", d: "Handed over installed, calibrated and with validation paperwork." },
+      { t: "Train & support", d: "We train operators and provide warranty and service." },
+    ],
+  },
+  apps: {
+    eyebrow: "Applications",
+    title: "Whatever your field, there is an analytical answer",
+  },
+  about: {
+    eyebrow: "Company",
+    title: "Not just a distributor — an analytical partner",
+    p1: "NovaLab was founded in Tashkent in 2021 by scientists and entrepreneurs. We supply laboratory equipment, consumables, chemicals and certified reference materials from leading manufacturers.",
+    p2: "But our real value is knowledge. We help clients solve analytical challenges in production and quality control according to international standards.",
+    est: "Founded",
+    mission: "Mission",
+    missionT: "To be a trusted supplier and a hub of analytical know-how for Uzbekistan's industry and science.",
+    vision: "Vision",
+    visionT: "To give scientists and industry the most advanced analytical solutions, accelerating discovery and productivity.",
+    points: [
+      "Official manufacturer partner",
+      "Certified service engineers",
+      "IQ/OQ/PQ validation documents",
+      "Training in Uzbek, Russian and English",
+    ],
+  },
+  faq: {
+    eyebrow: "Q&A",
+    title: "Frequently asked questions",
+    text: "Didn't find your answer? Write to us — a specialist replies within one business day.",
+    items: [
+      { q: "How long does delivery take?", a: "Reagents and balances in stock ship in 3–7 days. Made-to-order systems (NMR, MS, HPLC) usually take 6–12 weeks including customs clearance." },
+      { q: "Are installation and training included?", a: "Yes. For analytical systems, installation, start-up, IQ/OQ and an operator starter course are included in the offer." },
+      { q: "How do warranty and service work?", a: "Manufacturer warranty is 12–24 months. After that we offer contracts for scheduled maintenance, spare parts and re-validation." },
+      { q: "Do reference materials come with certificates?", a: "Yes, all reference materials come from ISO 17034-accredited producers with a certificate of analysis (CoA)." },
+      { q: "Can we send you samples for analysis?", a: "Of course. We run molecular analysis of food, pharmaceutical products and biological fluids, with a report and statistical processing." },
+      { q: "Is the equipment pharmacopoeia-compliant?", a: "Yes. Dissolution, disintegration, friability, hardness, powder and inhaler testing equipment complies with the relevant Ph. Eur. and USP chapters (e.g. 2.9.3 / <711>, 2.9.18 / <601>); compliance is shown on every model card." },
+      { q: "Do you qualify dissolution testers?", a: "Yes. IQ/OQ at installation, then periodic mechanical qualification (MQ) and PVT: shaft speed, vibration, centring and temperature, with a documented report." },
+      { q: "How does payment work?", a: "We work with legal entities under contract in UZS, and prepare documents for public tenders and grant projects." },
+    ],
+  },
+  contact: {
+    eyebrow: "Contact",
+    title: "Tell us the task — we'll find the solution",
+    text: "Fill in the form: a specialist will get back within one business day with a commercial offer.",
+    phone: "Phone",
+    email: "Email",
+    address: "Address",
+    addressV: "Tashkent, Uzbekistan",
+    hours: "Hours",
+    hoursV: "Mon–Fri, 9:00–18:00",
+  },
+  form: {
+    name: "Your name",
+    company: "Organisation",
+    phone: "Phone",
+    email: "Email",
+    interest: "Product line",
+    interestAny: "Not selected",
+    message: "Message",
+    messageP: "Which instrument or analysis do you need? Sample type, expected volume...",
+    clear: "Clear",
+    consent: "I agree to the processing of my personal data",
+    submit: "Send request",
+    sending: "Sending...",
+    ok: "Thank you! Your request was received — we'll be in touch soon.",
+    err: "Please check your name, phone and consent.",
+    fail: "Couldn't send. Please try again or call us.",
+  },
+  catalog: {
+    eyebrow: "Catalog",
+    title: "Products",
+    text: "Twelve product lines, more than 220 models. Find the model you need and request a price.",
+    search: "Search models...",
+    empty: "Nothing found.",
+    request: "Request",
+    requestFor: "Selected model",
+    back: "All product lines",
+    quoteTitle: "Request for this product line",
+    other: "Other product lines",
+    models: "models",
+    brand: "Manufacturer",
+    all: "All",
+    imageNote: "Images are for reference; configuration and appearance may vary.",
+    cat: "Cat. No.",
+    standards: "Compliance",
+  },
+  footer: {
+    about: "Distributor of analytical instruments, reagents and certified reference materials. Tashkent, Uzbekistan.",
+    rights: "All rights reserved.",
+    company: "Company",
+  },
+};
+
+const dictionaries: Record<Locale, Dictionary> = { uz, ru, en };
+export const getDictionary = (lang: Locale) => dictionaries[lang];
+
+/** Kontakt ma'lumotlari — o'zingiznikiga almashtiring */
+export const company = {
+  name: "NovaLab",
+  phone: "+998 71 200 00 00",
+  phoneHref: "tel:+998712000000",
+  email: "info@novalab.uz",
+  telegram: "https://t.me/",
+  instagram: "https://instagram.com/",
+  facebook: "https://facebook.com/",
+};
