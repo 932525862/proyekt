@@ -6,8 +6,28 @@ import { useEffect, useRef } from "react";
 type Variant = "molecule" | "spectrum";
 
 /**
+ * 3D sahnani ishga tushirish mumkinmi: WebGL bor, u apparat (GPU) orqali ishlaydi
+ * va foydalanuvchi trafikni tejash rejimini yoqmagan. Dasturiy renderer (SwiftShader, llvmpipe)
+ * protsessorni soniyalab band qiladi — bunday holatda statik SVG ko'rsatiladi.
+ */
+function canUse3D() {
+  try {
+    if ((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData) return false;
+    const canvas = document.createElement("canvas");
+    const gl = (canvas.getContext("webgl2") ?? canvas.getContext("webgl")) as WebGLRenderingContext | null;
+    if (!gl) return false;
+    const info = gl.getExtension("WEBGL_debug_renderer_info");
+    const renderer = String(gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER));
+    gl.getExtension("WEBGL_lose_context")?.loseContext();
+    return !/swiftshader|llvmpipe|softpipe|software|basic render/i.test(renderer);
+  } catch {
+    return false;
+  }
+}
+
+/**
  * 3D sahna (three.js, kechiktirib yuklanadi).
- * molecule — kofein molekulasining shar-tayoqcha modeli;
+ * molecule — kofein molekulasining shar-tayoqcha modeli (yuklanguncha va 3D imkonsiz bo'lsa — SVG);
  * spectrum — LC-MS ma'lumotlarining 3D yuzasi (vaqt × m/z × intensivlik).
  */
 export function LabScene({ variant, className = "" }: { variant: Variant; className?: string }) {
@@ -15,20 +35,38 @@ export function LabScene({ variant, className = "" }: { variant: Variant; classN
 
   useEffect(() => {
     const host = ref.current;
-    if (!host) return;
+    if (!host || !canUse3D()) return;
     let disposed = false;
     let cleanup = () => {};
 
-    import("three").then((THREE) => {
+    // Sahifa yuklanishini sekinlashtirmaslik uchun: ekranga yaqinlashganda va brauzer bo'shaganda ishga tushadi
+    const idle = (fn: () => void) =>
+      typeof window.requestIdleCallback === "function" ? window.requestIdleCallback(fn, { timeout: 2500 }) : window.setTimeout(fn, 600);
+    const near = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        near.disconnect();
+        idle(start);
+      },
+      { rootMargin: "300px" },
+    );
+    near.observe(host);
+
+    const start = () => import("three").then((THREE) => {
       if (disposed) return;
       const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
-      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      let renderer: Three.WebGLRenderer;
+      try {
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
+      } catch {
+        return;
+      }
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       host.appendChild(renderer.domElement);
-      renderer.domElement.style.cssText = "width:100%;height:100%;display:block";
+      renderer.domElement.style.cssText = "position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity 1s";
 
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
@@ -118,17 +156,24 @@ export function LabScene({ variant, className = "" }: { variant: Variant; classN
         track(grid.geometry);
         track(grid.material as Three.Material);
 
+        // exp(-dx²-dz²) = exp(-dx²)·exp(-dz²): har kadrda exp() o'rniga oldindan hisoblangan jadvallar
+        const xs = Array.from({ length: COLS }, (_, i) => -W / 2 + (i / (COLS - 1)) * W);
+        const gx = peaks.map((pk) => Float32Array.from(xs, (x) => Math.exp(-((x - pk.x) ** 2) / (2 * pk.s * pk.s))));
+        const gz = peaks.map((pk) => rows.map(({ z }) => Math.exp(-((z - pk.z) ** 2) / 0.9)));
+        const amp = new Float32Array(peaks.length);
+        let last = -1;
+
         update = (t) => {
-          for (const { g, z } of rows) {
+          if (t - last < 1 / 30) return; // ~30 kadr/s yetarli
+          last = t;
+          peaks.forEach((pk, p) => (amp[p] = pk.h * (0.75 + 0.25 * Math.sin(t * 1.1 + pk.ph))));
+          rows.forEach(({ g, z }, r) => {
             const pos = g.attributes.position as Three.BufferAttribute;
             const col = g.attributes.color as Three.BufferAttribute;
+            const active = peaks.map((_, p) => p).filter((p) => gz[p][r] > 1e-3);
             for (let i = 0; i < COLS; i++) {
-              const x = pos.getX(i);
-              let y = 0.02 * Math.sin(x * 9 + z * 3 + t * 2);
-              for (const pk of peaks) {
-                const dx = x - pk.x, dz = z - pk.z;
-                y += pk.h * (0.75 + 0.25 * Math.sin(t * 1.1 + pk.ph)) * Math.exp(-(dx * dx) / (2 * pk.s * pk.s) - (dz * dz) / 0.9);
-              }
+              let y = 0.02 * Math.sin(xs[i] * 9 + z * 3 + t * 2);
+              for (const p of active) y += amp[p] * gz[p][r] * gx[p][i];
               pos.setY(i, Math.max(y, 0));
               const k = Math.min(y / 1.8, 1);
               if (k < 0.5) c.copy(low).lerp(mid, k * 2);
@@ -137,7 +182,7 @@ export function LabScene({ variant, className = "" }: { variant: Variant; classN
             }
             pos.needsUpdate = true;
             col.needsUpdate = true;
-          }
+          });
           root.rotation.y = Math.sin(t * 0.15) * 0.3;
         };
       }
@@ -178,10 +223,17 @@ export function LabScene({ variant, className = "" }: { variant: Variant; classN
       };
       if (reduce) frame();
       else renderer.setAnimationLoop(frame);
+      const onLost = (e: Event) => {
+        e.preventDefault();
+        renderer.setAnimationLoop(null);
+      };
+      renderer.domElement.addEventListener("webglcontextlost", onLost);
       host.dataset.ready = "true";
+      requestAnimationFrame(() => (renderer.domElement.style.opacity = "1"));
 
       cleanup = () => {
         renderer.setAnimationLoop(null);
+        renderer.domElement.removeEventListener("webglcontextlost", onLost);
         window.removeEventListener("pointermove", onMove);
         ro.disconnect();
         io.disconnect();
@@ -196,24 +248,34 @@ export function LabScene({ variant, className = "" }: { variant: Variant; classN
     });
 
     return () => {
+      near.disconnect();
       disposed = true;
       cleanup();
     };
   }, [variant]);
 
   return (
-    <div
-      ref={ref}
-      aria-hidden="true"
-      className={`opacity-0 transition-opacity duration-1000 data-[ready=true]:opacity-100 ${className}`}
-    />
+    <div ref={ref} aria-hidden="true" className={`group ${className}`}>
+      {variant === "molecule" && (
+        <MoleculeSvg className="absolute inset-0 size-full transition-opacity duration-700 group-data-[ready=true]:opacity-0" />
+      )}
+    </div>
   );
 }
 
+type V = [number, number, number];
+type El = "C" | "N" | "O" | "H";
+
+const atomStyle: Record<El, { color: number; r: number }> = {
+  C: { color: 0x9fb0c4, r: 0.36 },
+  N: { color: 0x3b82f6, r: 0.36 },
+  O: { color: 0xef4444, r: 0.38 },
+  H: { color: 0xeef3f8, r: 0.2 },
+};
+
 /** Kofein (C8H10N4O2): purin halqasi + metil guruhlari, yengil 3D burilish bilan */
-function buildCaffeine(THREE: typeof import("three"), track: <T extends { dispose(): void }>(x: T) => T) {
-  type V = [number, number, number];
-  const atoms: { p: V; el: "C" | "N" | "O" | "H" }[] = [];
+function caffeine() {
+  const atoms: { p: V; el: El }[] = [];
   const bonds: [number, number, number][] = [];
   const add = (p: V, el: (typeof atoms)[number]["el"]) => atoms.push({ p, el }) - 1;
   const polar = (cx: number, cy: number, r: number, deg: number): V => [cx + r * Math.cos((deg * Math.PI) / 180), cy + r * Math.sin((deg * Math.PI) / 180), 0];
@@ -256,17 +318,15 @@ function buildCaffeine(THREE: typeof import("three"), track: <T extends { dispos
     }
   }
   bonds.push([C8, add(out(C8, 1.05, 0), "H"), 1]);
+  return { atoms, bonds };
+}
 
+function buildCaffeine(THREE: typeof import("three"), track: <T extends { dispose(): void }>(x: T) => T) {
+  const { atoms, bonds } = caffeine();
   const group = new THREE.Group();
-  const sphere = track(new THREE.SphereGeometry(1, 40, 28));
-  const style = {
-    C: { color: 0x9fb0c4, r: 0.36 },
-    N: { color: 0x3b82f6, r: 0.36 },
-    O: { color: 0xef4444, r: 0.38 },
-    H: { color: 0xeef3f8, r: 0.2 },
-  };
+  const sphere = track(new THREE.SphereGeometry(1, 32, 22));
   const mats = Object.fromEntries(
-    Object.entries(style).map(([el, st]) => [
+    Object.entries(atomStyle).map(([el, st]) => [
       el,
       track(new THREE.MeshPhysicalMaterial({ color: st.color, roughness: 0.25, metalness: 0.15, clearcoat: 1, clearcoatRoughness: 0.15 })),
     ]),
@@ -274,7 +334,7 @@ function buildCaffeine(THREE: typeof import("three"), track: <T extends { dispos
   for (const a of atoms) {
     const m = new THREE.Mesh(sphere, mats[a.el]);
     m.position.set(...a.p);
-    m.scale.setScalar(style[a.el].r);
+    m.scale.setScalar(atomStyle[a.el].r);
     group.add(m);
   }
   const cyl = track(new THREE.CylinderGeometry(0.075, 0.075, 1, 14));
@@ -302,4 +362,51 @@ function buildCaffeine(THREE: typeof import("three"), track: <T extends { dispos
   wrap.add(group);
   wrap.scale.setScalar(1.1);
   return wrap;
+}
+
+/**
+ * Statik SVG molekula — 3D yuklanguncha va 3D imkonsiz bo'lsa ko'rsatiladi.
+ * Kamera (z=17, fov 35°) ko'rinish maydoniga mos masshtab: ~9.75 birlik.
+ */
+function MoleculeSvg({ className = "" }: { className?: string }) {
+  const { atoms, bonds } = caffeine();
+  // yengil burilish (3D sahnadagi boshlang'ich holatga yaqin)
+  const ry = 0.45, rx = -0.18;
+  const pts = atoms.map(({ p: [x, y, z] }) => {
+    const x1 = x * Math.cos(ry) + z * Math.sin(ry);
+    const z1 = -x * Math.sin(ry) + z * Math.cos(ry);
+    const y1 = y * Math.cos(rx) - z1 * Math.sin(rx);
+    return { x: x1, y: -y1, z: y * Math.sin(rx) + z1 * Math.cos(rx) };
+  });
+  const cx = (Math.min(...pts.map((p) => p.x)) + Math.max(...pts.map((p) => p.x))) / 2;
+  const cy = (Math.min(...pts.map((p) => p.y)) + Math.max(...pts.map((p) => p.y))) / 2;
+  const S = 9.75 / 1.1;
+  const hex = (n: number) => `#${n.toString(16).padStart(6, "0")}`;
+  const order = atoms.map((_, i) => i).sort((a, b) => pts[a].z - pts[b].z);
+
+  return (
+    <svg viewBox={`${cx - S / 2} ${cy - S / 2} ${S} ${S}`} className={className}>
+      <defs>
+        {(Object.keys(atomStyle) as El[]).map((el) => (
+          <radialGradient key={el} id={`atom-${el}`} cx="35%" cy="30%" r="75%">
+            <stop offset="0" stopColor="#ffffff" stopOpacity="0.85" />
+            <stop offset="0.25" stopColor={hex(atomStyle[el].color)} />
+            <stop offset="1" stopColor={hex(atomStyle[el].color)} stopOpacity="0.55" />
+          </radialGradient>
+        ))}
+      </defs>
+      <g stroke="#c9d4e2" strokeWidth="0.15" strokeLinecap="round" opacity="0.9">
+        {bonds.flatMap(([a, b, n], i) => {
+          const A = pts[a], B = pts[b];
+          const len = Math.hypot(B.x - A.x, B.y - A.y) || 1;
+          const ox = (-(B.y - A.y) / len) * 0.11, oy = ((B.x - A.x) / len) * 0.11;
+          const offs = n === 2 ? [1, -1] : [0];
+          return offs.map((k) => <line key={`${i}-${k}`} x1={A.x + ox * k} y1={A.y + oy * k} x2={B.x + ox * k} y2={B.y + oy * k} />);
+        })}
+      </g>
+      {order.map((i) => (
+        <circle key={i} cx={pts[i].x} cy={pts[i].y} r={atomStyle[atoms[i].el].r} fill={`url(#atom-${atoms[i].el})`} />
+      ))}
+    </svg>
+  );
 }

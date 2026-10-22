@@ -7,13 +7,13 @@ export function ProductImage({
   sizes,
   className = "",
   pad = "p-6",
-  preload = false,
+  eager = false,
 }: {
   media: Media;
   sizes: string;
   className?: string;
   pad?: string;
-  preload?: boolean;
+  eager?: boolean;
 }) {
   const cover = media.fit === "cover";
   return (
@@ -25,7 +25,8 @@ export function ProductImage({
             alt={media.alt}
             fill
             sizes={sizes}
-            preload={preload}
+            loading={eager ? "eager" : undefined}
+            fetchPriority={eager ? "high" : undefined}
             className={`transition-transform duration-700 ease-out group-hover:scale-[1.04] ${
               cover ? "object-cover" : "object-contain mix-blend-multiply"
             }`}

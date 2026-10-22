@@ -30,6 +30,7 @@ import {
   Hourglass,
   Languages,
   Magnet,
+  Microscope,
   Mail,
   MapPin,
   Moon,
@@ -79,6 +80,7 @@ const icons: Record<string, LucideIcon> = {
   wrench: Wrench,
   qualify: ShieldCheck,
   training: GraduationCap,
+  method: Microscope,
   // ish jarayoni
   task: ClipboardList,
   config: SlidersHorizontal,

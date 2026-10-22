@@ -77,7 +77,7 @@ export function Header({ lang, nav, hours, address }: Props) {
         }`}
       >
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:h-[76px]">
-          <Link href={`/${lang}`} aria-label="NovaLab" onClick={() => setOpen(false)}>
+          <Link href={`/${lang}`} aria-label={company.name} onClick={() => setOpen(false)}>
             <Logo />
           </Link>
 

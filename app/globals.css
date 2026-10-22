@@ -32,12 +32,24 @@
   --muted: #8a9cb1;
   --line: rgb(228 235 243 / 0.1);
   --accent: #4f8dff;
-  --accent-ink: #ffffff;
+  /* yorqin ko'k ustida oq matn kontrasti yetarli emas (3.2) — to'q matn (5.9) */
+  --accent-ink: #061021;
   --signal: #2dd4dc;
   --studio: #dfe6ee;
   --band: #040c16;
   --band-2: #0a1a2e;
   --on-band: #e6edf6;
+}
+
+/* Spectrum Peak belgisi gradienti — lib/brand.ts bilan bir xil */
+:root {
+  --mark-f0: #86d8f0; --mark-f1: #7bcce9; --mark-f2: #59a2cf; --mark-f3: #406ca6; --mark-f4: #303d83; --mark-f5: #2e3480;
+  --mark-s0: #5ab8df; --mark-s1: #50a9d5; --mark-s2: #367eb4; --mark-s3: #2a508d; --mark-s4: #232f71; --mark-s5: #22266a;
+}
+.dark,
+.mark-on-dark {
+  --mark-f0: #a8ecfb; --mark-f1: #9be3f7; --mark-f2: #7fc4ec; --mark-f3: #6a9fe0; --mark-f4: #5b7fd6; --mark-f5: #5874d2;
+  --mark-s0: #7fd0ee; --mark-s1: #73c6ea; --mark-s2: #5aa6dd; --mark-s3: #4d83cf; --mark-s4: #4466c4; --mark-s5: #3f5cbe;
 }
 
 @theme inline {

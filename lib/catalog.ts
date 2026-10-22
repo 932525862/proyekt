@@ -282,6 +282,11 @@ export const services: { icon: string; title: T; text: T }[] = [
     text: { uz: "Murakkab ma'lumotlar to'plamidan ishonchli xulosalar: kemometrika, ko'p o'lchovli tahlil.", ru: "Надёжные выводы из сложных данных: хемометрика, многомерный анализ.", en: "Reliable insight from complex datasets: chemometrics and multivariate analysis." },
   },
   {
+    icon: "method",
+    title: { uz: "Yangi analitik metodlar yaratish", ru: "Разработка новых аналитических методик", en: "New analytical method development" },
+    text: { uz: "Vazifangiz uchun metodikani noldan ishlab chiqamiz: namuna tayyorlash, xromatografik va spektral sharoitlarni optimallashtirish, ICH Q2(R2) bo'yicha validatsiya va metodni laboratoriyangizga o'tkazish.", ru: "Разрабатываем методику под вашу задачу с нуля: пробоподготовка, оптимизация хроматографических и спектральных условий, валидация по ICH Q2(R2) и перенос методики в вашу лабораторию.", en: "We develop methods for your task from scratch: sample preparation, chromatographic and spectral optimisation, validation to ICH Q2(R2) and transfer to your lab." },
+  },
+  {
     icon: "wrench",
     title: { uz: "Servis va validatsiya", ru: "Сервис и валидация", en: "Maintenance & validation" },
     text: { uz: "Yuqori sezgir uskunalarga texnik xizmat, kalibrlash va IQ/OQ/PQ validatsiyasi.", ru: "ТО, калибровка и валидация IQ/OQ/PQ высокочувствительного оборудования.", en: "Maintenance, calibration and IQ/OQ/PQ validation of sensitive instruments." },

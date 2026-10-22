@@ -1,3 +1,5 @@
+import { company } from "@/lib/i18n";
+
 /**
  * So'rov formasi uchun endpoint.
  * TELEGRAM_BOT_TOKEN va TELEGRAM_CHAT_ID muhit o'zgaruvchilari berilsa,
@@ -45,7 +47,7 @@ export async function POST(request: Request) {
 
   if (token && chatId) {
     const text = [
-      "🧪 Yangi so'rov — NovaLab",
+      `🧪 Yangi so'rov — ${company.name}`,
       `👤 ${lead.name}${lead.company ? ` (${lead.company})` : ""}`,
       `📞 ${lead.phone}`,
       lead.email && `✉️ ${lead.email}`,

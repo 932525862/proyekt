@@ -35,7 +35,7 @@ export async function Footer({ lang, dict }: { lang: Locale; dict: Dictionary })
         </div>
 
         <div>
-          <h4 className={col}>{dict.nav.products}</h4>
+          <h2 className={col}>{dict.nav.products}</h2>
           <ul className="space-y-2.5 text-[15px] text-on-band/75">
             {categories.map((c) => (
               <li key={c.slug}>
@@ -48,7 +48,7 @@ export async function Footer({ lang, dict }: { lang: Locale; dict: Dictionary })
         </div>
 
         <div>
-          <h4 className={col}>{dict.footer.company}</h4>
+          <h2 className={col}>{dict.footer.company}</h2>
           <ul className="space-y-2.5 text-[15px] text-on-band/75">
             {(["services", "applications", "about", "faq"] as const).map((k) => (
               <li key={k}>
@@ -61,7 +61,7 @@ export async function Footer({ lang, dict }: { lang: Locale; dict: Dictionary })
         </div>
 
         <div>
-          <h4 className={col}>{dict.nav.contact}</h4>
+          <h2 className={col}>{dict.nav.contact}</h2>
           <ul className="space-y-2.5 text-[15px] text-on-band/75">
             <li><a href={company.phoneHref} className="hover:text-white">{company.phone}</a></li>
             <li><a href={`mailto:${company.email}`} className="hover:text-white">{company.email}</a></li>
@@ -73,7 +73,7 @@ export async function Footer({ lang, dict }: { lang: Locale; dict: Dictionary })
 
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 border-t border-white/10 px-4 py-6 text-sm text-on-band/50 sm:px-6">
         <span>
-          © {year} NovaLab. {dict.footer.rights}
+          © {year} {company.name}. {dict.footer.rights}
         </span>
         <a href="#top" aria-label={dict.nav.top} className="grid size-10 place-items-center rounded-md border border-white/15 hover:border-white hover:text-white">
           <Icon name="arrow" className="size-4 -rotate-90" />

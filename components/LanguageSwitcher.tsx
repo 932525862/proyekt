@@ -55,7 +55,7 @@ export function LanguageMenu({ lang, label }: { lang: Locale; label: string }) {
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={label}
+        aria-label={`${label}: ${lang.toUpperCase()}`}
         onClick={() => setOpen((v) => !v)}
         className="flex h-10 items-center gap-1.5 rounded-md border border-line px-2.5 text-sm font-semibold text-ink/80 transition-colors hover:border-ink/30 hover:text-ink"
       >

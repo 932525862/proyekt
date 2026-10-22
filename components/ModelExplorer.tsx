@@ -51,7 +51,7 @@ export function ModelExplorer({ lang, groups, dict, options, slug }: Props) {
                   type="button"
                   onClick={() => setActive(t.name)}
                   className={`shrink-0 rounded-md border px-3.5 py-2 text-sm font-medium transition-colors ${
-                    active === t.name ? "border-accent bg-accent text-white" : "border-line bg-card text-ink/70 hover:border-accent/50 hover:text-ink"
+                    active === t.name ? "border-accent bg-accent text-accent-ink" : "border-line bg-card text-ink/70 hover:border-accent/50 hover:text-ink"
                   }`}
                 >
                   {t.label}
@@ -76,10 +76,10 @@ export function ModelExplorer({ lang, groups, dict, options, slug }: Props) {
         {visible.length === 0 && <p className="py-16 text-center text-muted">{c.empty}</p>}
         {visible.map((g) => (
           <div key={g.name}>
-            <h3 className="mb-5 flex items-center gap-3 border-b border-line pb-3 text-lg font-semibold tracking-tight">
+            <h2 className="mb-5 flex items-center gap-3 border-b border-line pb-3 text-lg font-semibold tracking-tight">
               {g.name}
               <span className="rounded-sm bg-accent/10 px-2 py-0.5 text-xs font-semibold tech text-accent">{g.models.length}</span>
-            </h3>
+            </h2>
             <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {g.models.map((m) => (
                 <li key={m.name}>

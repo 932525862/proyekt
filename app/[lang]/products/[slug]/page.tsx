@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/Icon";
+import { JsonLd } from "@/components/JsonLd";
 import { ModelExplorer } from "@/components/ModelExplorer";
 import { ProductImage } from "@/components/ProductImage";
 import { categories, getCategory, modelCount } from "@/lib/catalog";
-import { alternates, getDictionary, isLocale, locales, tr } from "@/lib/i18n";
+import { company, getDictionary, isLocale, locales, tr } from "@/lib/i18n";
 import { categoryMedia, modelImage } from "@/lib/media";
+import { breadcrumbs, categoryPage, pageMetadata } from "@/lib/seo";
 import { labels, modelSpecs, specText } from "@/lib/specs";
 
 export async function generateStaticParams() {
@@ -17,7 +19,23 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/products/[
   const { lang, slug } = await params;
   const c = getCategory(slug);
   if (!isLocale(lang) || !c) return {};
-  return { title: tr(c.name, lang), description: tr(c.description, lang), alternates: alternates(lang, `/products/${slug}`) };
+  const name = tr(c.name, lang);
+  const city = { uz: "Toshkent", ru: "Ташкент", en: "Tashkent" }[lang];
+  return pageMetadata({
+    lang,
+    path: `/products/${slug}`,
+    title: `${name} — ${c.brand}`,
+    description: tr(c.description, lang),
+    keywords: [
+      name,
+      `${name} ${c.brand}`,
+      `${name} ${city}`,
+      c.brand,
+      ...c.groups.map((g) => (typeof g.name === "string" ? g.name : tr(g.name, lang))),
+      ...c.groups.flatMap((g) => g.models).slice(0, 12),
+      ...(c.standards ?? []),
+    ],
+  });
 }
 
 export default async function CategoryPage({ params }: PageProps<"/[lang]/products/[slug]">) {
@@ -44,11 +62,19 @@ export default async function CategoryPage({ params }: PageProps<"/[lang]/produc
 
   return (
     <>
+      <JsonLd data={categoryPage(c, lang, groups.flatMap((g) => g.models.map((m) => ({ name: m.name, image: m.image?.src }))))} />
+      <JsonLd
+        data={breadcrumbs([
+          { name: company.brand, path: `/${lang}` },
+          { name: d.catalog.title, path: `/${lang}/products` },
+          { name: tr(c.name, lang), path: `/${lang}/products/${c.slug}` },
+        ])}
+      />
       <section className="relative isolate overflow-hidden border-b border-line bg-band pb-12 pt-[124px] text-on-band lg:pb-16 lg:pt-40">
         <div className="bg-blueprint absolute inset-0 -z-10" />
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <nav className="flex items-center gap-2 text-sm text-on-band/55">
-            <Link href={`/${lang}`} className="hover:text-white">NovaLab</Link>
+            <Link href={`/${lang}`} className="hover:text-white">{company.brand}</Link>
             <span>/</span>
             <Link href={`/${lang}/products`} className="hover:text-white">{d.catalog.title}</Link>
             <span>/</span>
@@ -90,7 +116,7 @@ export default async function CategoryPage({ params }: PageProps<"/[lang]/produc
             <ProductImage
               media={categoryMedia[c.slug]}
               sizes="(min-width:1024px) 560px, 100vw"
-              preload
+              eager
               pad="p-10"
               className="aspect-[4/3] rounded-lg ring-1 ring-white/10"
             />

@@ -1,15 +1,43 @@
-/** Belgi — benzol halqasi (oltiburchak) ichida aromatik doira */
+import { MARK_FILL, MARK_HOLE, MARK_OUTER, MARK_STROKE, MARK_VIEWBOX } from "@/lib/brand";
+import { company } from "@/lib/i18n";
+
+/**
+ * Spectrum Peak belgisi (vektor). Ranglar CSS o'zgaruvchilaridan olinadi:
+ * yorug' fonda asl gradient, `.dark` yoki `.mark-on-dark` ichida yorqinroq variant.
+ */
+export function BrandMark({ id, className = "" }: { id: string; className?: string }) {
+  return (
+    <svg viewBox={MARK_VIEWBOX} className={className} role="img" aria-label={company.brand}>
+      <defs>
+        <linearGradient id={`${id}-f`} x1="0" y1="35" x2="0" y2="968" gradientUnits="userSpaceOnUse">
+          {MARK_FILL.map(([o], i) => (
+            <stop key={o} offset={o} style={{ stopColor: `var(--mark-f${i})` }} />
+          ))}
+        </linearGradient>
+        <linearGradient id={`${id}-s`} x1="0" y1="35" x2="0" y2="968" gradientUnits="userSpaceOnUse">
+          {MARK_STROKE.map(([o], i) => (
+            <stop key={o} offset={o} style={{ stopColor: `var(--mark-s${i})` }} />
+          ))}
+        </linearGradient>
+        <path id={`${id}-p`} d={`${MARK_OUTER} ${MARK_HOLE}`} />
+        <clipPath id={`${id}-c`}>
+          <use href={`#${id}-p`} />
+        </clipPath>
+      </defs>
+      <use href={`#${id}-p`} fill={`url(#${id}-f)`} stroke={`url(#${id}-s)`} strokeWidth="36" clipPath={`url(#${id}-c)`} />
+    </svg>
+  );
+}
+
 export function Logo({ className = "", inverted = false }: { className?: string; inverted?: boolean }) {
   return (
-    <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      <svg viewBox="0 0 40 40" className="size-9 shrink-0" aria-hidden="true">
-        <path d="M20 2.5 35.2 11.25v17.5L20 37.5 4.8 28.75v-17.5z" fill="var(--accent)" />
-        <path d="M20 9.5 29.1 14.75v10.5L20 30.5 10.9 25.25v-10.5z" fill="none" stroke="#fff" strokeWidth="2" />
-        <circle cx="20" cy="20" r="4.6" fill="none" stroke="#fff" strokeWidth="1.6" opacity="0.85" />
-        <circle cx="29.1" cy="14.75" r="2.2" fill="var(--signal)" />
-      </svg>
+    <span className={`inline-flex items-center gap-2.5 ${inverted ? "mark-on-dark" : ""} ${className}`}>
+      <BrandMark id={inverted ? "mark-ft" : "mark-hd"} className="h-8 w-auto shrink-0 sm:h-9" />
       <span className="leading-none">
-        <span className={`block text-[19px] font-semibold tracking-[-0.02em] ${inverted ? "text-white" : ""}`}>NovaLab</span>
+        <span className={`flex items-baseline gap-1.5 whitespace-nowrap text-[17px] font-semibold tracking-[-0.02em] sm:text-[19px] ${inverted ? "text-white" : ""}`}>
+          {company.brand}
+          <span className={`hidden text-[13px] font-medium tracking-normal sm:inline ${inverted ? "text-white/60" : "text-muted"}`}>LLC</span>
+        </span>
         <span className={`mt-1 whitespace-nowrap text-[9px] font-semibold uppercase tracking-[0.16em] ${inverted ? "block text-white/55" : "hidden text-muted sm:block"}`}>
           Analytical Solutions
         </span>

@@ -2,12 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/Icon";
+import { JsonLd } from "@/components/JsonLd";
 import { LabScene } from "@/components/LabScene";
 import { LeadForm } from "@/components/LeadForm";
 import { ProductImage } from "@/components/ProductImage";
 import { applications, brands, categories, featured, getCategory, modelCount, services } from "@/lib/catalog";
 import { company, getDictionary, isLocale, tr } from "@/lib/i18n";
 import { categoryMedia, featuredMedia, industries, pharmaFlow, photos } from "@/lib/media";
+import { faqPage } from "@/lib/seo";
 
 const trustIcons = ["calendar", "boxes", "factory", "timer"];
 const processIcons = ["task", "config", "truck", "install", "support"];
@@ -46,13 +48,15 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
 
   return (
     <>
+      <JsonLd data={faqPage(lang)} />
       {/* ================= HERO ================= */}
       <section className="relative isolate overflow-hidden bg-band pt-[100px] text-on-band lg:pt-28">
         <Image
           src={photos.hero.src}
           alt=""
           fill
-          preload
+          loading="eager"
+          fetchPriority="high"
           sizes="100vw"
           className="-z-20 object-cover opacity-25"
         />
@@ -76,7 +80,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
                 href={`/${lang}/products`}
-                className="group inline-flex h-12 items-center gap-2 rounded-md bg-accent px-6 font-semibold text-white transition-colors hover:bg-white hover:text-band"
+                className="group inline-flex h-12 items-center gap-2 rounded-md bg-accent px-6 font-semibold text-accent-ink transition-colors hover:bg-white hover:text-band"
               >
                 {d.hero.primary}
                 <Icon name="arrow" className="size-[18px] transition-transform group-hover:translate-x-1" />
@@ -150,7 +154,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           <span className="shrink-0 eyebrow text-muted">{d.brands}</span>
           <ul className="grid flex-1 grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3 md:flex md:justify-between">
             {brands.map((b) => (
-              <li key={b} className="text-xl font-semibold tracking-tight text-ink/45 transition-colors hover:text-ink sm:text-[1.4rem]">
+              <li key={b} className="text-xl font-semibold tracking-tight text-ink/60 transition-colors hover:text-ink sm:text-[1.4rem]">
                 {b}
               </li>
             ))}
@@ -291,7 +295,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                     </div>
                     <div className="flex flex-1 flex-col border-t border-line p-3.5 sm:p-5">
                       <span className="flex items-center gap-2 sm:gap-2.5">
-                        <span className="grid size-7 shrink-0 place-items-center rounded-md bg-accent text-white sm:size-8">
+                        <span className="grid size-7 shrink-0 place-items-center rounded-md bg-accent text-accent-ink sm:size-8">
                           <Icon name={s.icon} className="size-4 sm:size-[18px]" />
                         </span>
                         <h3 className="text-[15px] font-semibold tracking-tight sm:text-lg">{step.t}</h3>
@@ -340,7 +344,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                   ISO/IEC 17025 · GLP
                   <span className="mt-1 block text-base font-semibold normal-case tracking-tight text-white">IQ / OQ / PQ</span>
                 </span>
-                <span className="grid size-12 place-items-center rounded-md bg-accent">
+                <span className="grid size-12 place-items-center rounded-md bg-accent text-accent-ink">
                   <Icon name="check" className="size-6" />
                 </span>
               </div>
@@ -352,11 +356,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
               <li
                 key={s.icon}
                 className={`reveal group rounded-lg border border-line bg-card p-6 transition-[border-color,box-shadow] duration-300 hover:border-accent/40 hover:shadow-[0_18px_40px_-24px_rgb(11_92_213/0.35)] ${
-                  i === services.length - 1 ? "sm:col-span-2" : ""
+                  services.length % 2 === 1 && i === services.length - 1 ? "sm:col-span-2" : ""
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="grid size-12 place-items-center rounded-md border border-accent/15 bg-accent/[0.07] text-accent transition-colors group-hover:border-accent group-hover:bg-accent group-hover:text-white">
+                  <span className="grid size-12 place-items-center rounded-md border border-accent/15 bg-accent/[0.07] text-accent transition-colors group-hover:border-accent group-hover:bg-accent group-hover:text-accent-ink">
                     <Icon name={s.icon} className="size-6" strokeWidth={1.5} />
                   </span>
                   <span className="text-xs font-semibold tech text-muted">{String(i + 1).padStart(2, "0")}</span>
@@ -416,7 +420,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
               >
                 <Image
                   src={ind.image.src}
-                  alt={ind.image.alt}
+                  alt=""
                   fill
                   sizes={i === 0 ? "(min-width:1024px) 640px, 100vw" : "(min-width:1024px) 320px, 50vw"}
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -457,11 +461,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             <div className="relative aspect-square overflow-hidden rounded-lg">
               <Image src={photos.beaker.src} alt={photos.beaker.alt} fill sizes="(min-width:1024px) 240px, 40vw" className="object-cover" />
             </div>
-            <div className="flex flex-col justify-between rounded-lg bg-accent p-5 text-white">
-              <span className="eyebrow text-white/70">{d.about.est}</span>
+            <div className="flex flex-col justify-between rounded-lg bg-accent p-5 text-accent-ink">
+              <span className="eyebrow opacity-80">{d.about.est}</span>
               <span>
                 <span className="block text-5xl font-semibold leading-none tracking-[-0.04em] sm:text-6xl">2021</span>
-                <span className="mt-2 block text-sm text-white/75">{d.contact.addressV}</span>
+                <span className="mt-2 block text-sm opacity-80">{d.contact.addressV}</span>
               </span>
             </div>
           </div>
@@ -516,7 +520,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
               <details key={f.q} className="group" open={i === 0}>
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-[17px] font-semibold tracking-tight transition-colors hover:text-accent [&::-webkit-details-marker]:hidden">
                   {f.q}
-                  <span className="grid size-8 shrink-0 place-items-center rounded-md border border-line transition-all duration-300 group-open:rotate-45 group-open:border-accent group-open:bg-accent group-open:text-white">
+                  <span className="grid size-8 shrink-0 place-items-center rounded-md border border-line transition-all duration-300 group-open:rotate-45 group-open:border-accent group-open:bg-accent group-open:text-accent-ink">
                     <Icon name="plus" className="size-4" />
                   </span>
                 </summary>
@@ -546,7 +550,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 { icon: "clock", k: d.contact.hours, v: d.contact.hoursV },
               ].map((c) => (
                 <li key={c.icon} className="flex items-center gap-4 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur">
-                  <span className="grid size-11 shrink-0 place-items-center rounded-md bg-accent text-white">
+                  <span className="grid size-11 shrink-0 place-items-center rounded-md bg-accent text-accent-ink">
                     <Icon name={c.icon} className="size-5" />
                   </span>
                   <span className="min-w-0">

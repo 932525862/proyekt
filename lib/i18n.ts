@@ -30,9 +30,11 @@ export const tr = (text: T, lang: Locale) => text[lang];
 
 const uz = {
   meta: {
-    title: "NovaLab — Analitik uskunalar, reagentlar va laboratoriya servisi",
+    title: "Spectrum Peak LLC — analitik uskunalar va reagentlar",
     description:
-      "YaMR va mass-spektrometrlar, HHX tizimlari, dissolyutsiya va ingalyatsion testlar uskunalari, tarozilar, reagentlar va ISO 17034 standart namunalari. Yetkazib berish, o'rnatish, validatsiya va o'qitish — Toshkent.",
+      "Toshkentda analitik laboratoriya uskunalari: Bruker, Magritek, KNAUER, KERN, LGC, Copley. Yetkazib berish, o'rnatish, IQ/OQ validatsiya va o'qitish.",
+    keywords: ["laboratoriya uskunalari", "analitik uskunalar Toshkent", "mass-spektrometr", "YaMR spektrometr", "HPLC tizimlari", "analitik tarozi", "dissolyutsiya testeri", "laboratoriya reagentlari", "standart namunalar ISO 17034", "Bruker O'zbekiston", "KERN tarozilari", "Copley Scientific"],
+    tagline: "Analitik uskunalar · Reagentlar · Servis",
   },
   nav: {
     products: "Mahsulotlar",
@@ -91,8 +93,8 @@ const uz = {
   },
   services: {
     eyebrow: "Xizmatlar",
-    title: "Uskunadan tashqari — tahlil, ma'lumot va servis",
-    text: "O'z laboratoriyamizda namunalaringizni tahlil qilamiz, natijalarni statistik qayta ishlaymiz va uskunangizni ishchi holatda saqlaymiz.",
+    title: "Konsultatsiya xizmatlari va yangi analitik metodlar yaratish",
+    text: "O'z laboratoriyamizda namunalaringizni tahlil qilamiz, yangi analitik metodlar ishlab chiqamiz, natijalarni statistik qayta ishlaymiz, mutaxassis maslahatini beramiz va uskunangizni ishchi holatda saqlaymiz.",
   },
   process: {
     eyebrow: "Qanday ishlaymiz",
@@ -112,7 +114,7 @@ const uz = {
   about: {
     eyebrow: "Kompaniya",
     title: "Distribyutor emas — analitik hamkor",
-    p1: "NovaLab 2021-yilda Toshkentda olimlar va tadbirkorlar tomonidan tashkil etilgan. Biz laboratoriya uskunalari, sarf materiallari, kimyoviy reagentlar va sertifikatlangan standart namunalarni yetakchi ishlab chiqaruvchilardan yetkazib beramiz.",
+    p1: "Spectrum Peak LLC 2021-yilda Toshkentda olimlar va tadbirkorlar tomonidan tashkil etilgan. Biz laboratoriya uskunalari, sarf materiallari, kimyoviy reagentlar va sertifikatlangan standart namunalarni yetakchi ishlab chiqaruvchilardan yetkazib beramiz.",
     p2: "Lekin asosiy qadriyatimiz — bilim. Mijozlarimizga ishlab chiqarish va sifat nazoratidagi analitik vazifalarni xalqaro standartlar asosida hal qilishda yordam beramiz.",
     est: "Tashkil etilgan",
     mission: "Missiya",
@@ -198,9 +200,11 @@ export type Dictionary = typeof uz;
 
 const ru: Dictionary = {
   meta: {
-    title: "NovaLab — аналитическое оборудование, реагенты и сервис",
+    title: "Spectrum Peak LLC — аналитическое оборудование и реактивы",
     description:
-      "ЯМР и масс-спектрометры, системы ВЭЖХ, тестеры растворения и ингаляционных препаратов, весы, реагенты и стандартные образцы ISO 17034. Поставка, монтаж, валидация и обучение — Ташкент.",
+      "Аналитическое оборудование в Ташкенте: Bruker, Magritek, KNAUER, KERN, LGC, Copley. Поставка, монтаж, валидация IQ/OQ и обучение персонала.",
+    keywords: ["лабораторное оборудование Ташкент", "аналитическое оборудование Узбекистан", "масс-спектрометр", "ЯМР спектрометр", "ВЭЖХ", "аналитические весы", "тестер растворения", "лабораторные реактивы", "стандартные образцы ISO 17034", "Bruker Узбекистан", "весы KERN", "Copley Scientific"],
+    tagline: "Аналитическое оборудование · Реактивы · Сервис",
   },
   nav: {
     products: "Продукция",
@@ -259,8 +263,8 @@ const ru: Dictionary = {
   },
   services: {
     eyebrow: "Услуги",
-    title: "Больше, чем оборудование — анализ, данные и сервис",
-    text: "Анализируем ваши образцы в собственной лаборатории, обрабатываем результаты статистически и поддерживаем приборы в рабочем состоянии.",
+    title: "Консультационные услуги и разработка новых аналитических методик",
+    text: "Анализируем ваши образцы в собственной лаборатории, разрабатываем новые аналитические методики, обрабатываем результаты статистически, консультируем и поддерживаем приборы в рабочем состоянии.",
   },
   process: {
     eyebrow: "Как мы работаем",
@@ -280,7 +284,7 @@ const ru: Dictionary = {
   about: {
     eyebrow: "Компания",
     title: "Не просто дистрибьютор — аналитический партнёр",
-    p1: "NovaLab основана в 2021 году в Ташкенте учёными и предпринимателями. Мы поставляем лабораторное оборудование, расходные материалы, химические реактивы и сертифицированные стандартные образцы ведущих производителей.",
+    p1: "Spectrum Peak LLC основана в 2021 году в Ташкенте учёными и предпринимателями. Мы поставляем лабораторное оборудование, расходные материалы, химические реактивы и сертифицированные стандартные образцы ведущих производителей.",
     p2: "Но главная наша ценность — знания. Мы помогаем клиентам решать аналитические задачи производства и контроля качества по международным стандартам.",
     est: "Основана",
     mission: "Миссия",
@@ -364,9 +368,11 @@ const ru: Dictionary = {
 
 const en: Dictionary = {
   meta: {
-    title: "NovaLab — Analytical instruments, reagents & lab services",
+    title: "Spectrum Peak LLC — Analytical Instruments & Reagents",
     description:
-      "NMR and mass spectrometers, HPLC systems, dissolution and inhaler testing equipment, balances, reagents and ISO 17034 reference materials. Supply, installation, validation and training — Tashkent.",
+      "Analytical lab instruments in Tashkent, Uzbekistan: Bruker, Magritek, KNAUER, KERN, LGC and Copley. Supply, installation, IQ/OQ validation and training.",
+    keywords: ["laboratory equipment Uzbekistan", "analytical instruments Tashkent", "mass spectrometer", "benchtop NMR", "HPLC systems", "analytical balance", "dissolution tester", "lab reagents", "ISO 17034 reference materials", "Bruker distributor Uzbekistan", "KERN balances", "Copley Scientific"],
+    tagline: "Analytical instruments · Reagents · Service",
   },
   nav: {
     products: "Products",
@@ -425,8 +431,8 @@ const en: Dictionary = {
   },
   services: {
     eyebrow: "Services",
-    title: "Beyond hardware — analysis, data and service",
-    text: "We analyse your samples in our own lab, process the results statistically and keep your instruments running.",
+    title: "Consulting services and new analytical method development",
+    text: "We analyse your samples in our own lab, develop new analytical methods, process results statistically, provide expert consulting and keep your instruments running.",
   },
   process: {
     eyebrow: "How we work",
@@ -446,7 +452,7 @@ const en: Dictionary = {
   about: {
     eyebrow: "Company",
     title: "Not just a distributor — an analytical partner",
-    p1: "NovaLab was founded in Tashkent in 2021 by scientists and entrepreneurs. We supply laboratory equipment, consumables, chemicals and certified reference materials from leading manufacturers.",
+    p1: "Spectrum Peak LLC was founded in Tashkent in 2021 by scientists and entrepreneurs. We supply laboratory equipment, consumables, chemicals and certified reference materials from leading manufacturers.",
     p2: "But our real value is knowledge. We help clients solve analytical challenges in production and quality control according to international standards.",
     est: "Founded",
     mission: "Mission",
@@ -533,9 +539,10 @@ export const getDictionary = (lang: Locale) => dictionaries[lang];
 
 /** Kontakt ma'lumotlari — o'zingiznikiga almashtiring */
 export const company = {
-  name: "NovaLab",
-  phone: "+998 71 200 00 00",
-  phoneHref: "tel:+998712000000",
+  name: "Spectrum Peak LLC",
+  brand: "Spectrum Peak",
+  phone: "+998 99 879 46 09",
+  phoneHref: "tel:+998998794609",
   email: "info@novalab.uz",
   telegram: "https://t.me/",
   instagram: "https://instagram.com/",

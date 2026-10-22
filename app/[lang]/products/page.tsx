@@ -3,16 +3,24 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/Icon";
+import { JsonLd } from "@/components/JsonLd";
 import { ProductImage } from "@/components/ProductImage";
 import { brands, categories, modelCount, totalModels } from "@/lib/catalog";
-import { alternates, getDictionary, isLocale, tr } from "@/lib/i18n";
+import { company, getDictionary, isLocale, tr } from "@/lib/i18n";
 import { categoryMedia, photos } from "@/lib/media";
+import { breadcrumbs, catalogPage, pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/products">): Promise<Metadata> {
   const { lang } = await params;
   if (!isLocale(lang)) return {};
   const d = getDictionary(lang);
-  return { title: d.catalog.title, description: d.catalog.text, alternates: alternates(lang, "/products") };
+  return pageMetadata({
+    lang,
+    path: "/products",
+    title: `${d.catalog.title} — ${brands.slice(0, 4).join(", ")}`,
+    description: `${d.catalog.text} ${categories.map((c) => tr(c.name, lang)).join(", ")}.`,
+    keywords: [...d.meta.keywords, ...categories.map((c) => tr(c.name, lang)), ...brands],
+  });
 }
 
 export default async function ProductsPage({ params }: PageProps<"/[lang]/products">) {
@@ -22,8 +30,15 @@ export default async function ProductsPage({ params }: PageProps<"/[lang]/produc
 
   return (
     <>
+      <JsonLd data={catalogPage(lang)} />
+      <JsonLd
+        data={breadcrumbs([
+          { name: company.brand, path: `/${lang}` },
+          { name: d.catalog.title, path: `/${lang}/products` },
+        ])}
+      />
       <section className="relative isolate overflow-hidden bg-band pb-14 pt-[140px] text-on-band lg:pb-20 lg:pt-44">
-        <Image src={photos.team.src} alt="" fill preload sizes="100vw" className="-z-20 object-cover opacity-20" />
+        <Image src={photos.team.src} alt="" fill loading="eager" fetchPriority="high" sizes="100vw" className="-z-20 object-cover opacity-20" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-band via-band/90 to-band/60" />
         <div className="bg-blueprint absolute inset-0 -z-10" />
         <div className="mx-auto grid max-w-7xl items-end gap-10 px-4 sm:px-6 lg:grid-cols-[1.2fr_1fr]">
