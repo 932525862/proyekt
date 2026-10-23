@@ -1,4 +1,5 @@
 import type { Category } from "./catalog";
+import placeholders from "./placeholders.json";
 import type { T } from "./i18n";
 
 /**
@@ -7,6 +8,15 @@ import type { T } from "./i18n";
  * Fon suratlari — Unsplash (bepul tijoriy litsenziya). Manbalar ro'yxati: IMAGE_SOURCES.md
  */
 export type Media = { src: string; alt: string; fit?: "contain" | "cover" };
+
+/** Rasmning xira oldindan ko'rinishi (scripts/placeholders.mjs yaratadi) */
+export const blurFor = (src: string): string | undefined => (placeholders as Record<string, string>)[src];
+
+/** next/image uchun: oldindan ko'rinish bo'lsa — blur, bo'lmasa — bo'sh */
+export const blurProps = (src: string) => {
+  const blurDataURL = blurFor(src);
+  return blurDataURL ? ({ placeholder: "blur", blurDataURL } as const) : ({ placeholder: "empty" } as const);
+};
 
 const p = (name: string, alt: string, fit: Media["fit"] = "contain"): Media => ({ src: `/images/products/${name}.webp`, alt, fit });
 const photo = (name: string, alt: string): Media => ({ src: `/images/photos/${name}.webp`, alt, fit: "cover" });

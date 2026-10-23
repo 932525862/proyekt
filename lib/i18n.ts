@@ -13,8 +13,12 @@ export const ogLocales: Record<Locale, string> = { uz: "uz_UZ", ru: "ru_RU", en:
 /** Tanlangan til shu cookie'da saqlanadi (proxy.ts uni o'qiydi) */
 export const localeCookie = "NEXT_LOCALE";
 
-/** Saytning ommaviy manzili — production'da NEXT_PUBLIC_SITE_URL bilan belgilang */
-export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://novalab.uz").replace(/\/$/, "");
+/**
+ * Saytning ommaviy manzili (canonical, hreflang, sitemap, OG rasmlar shundan olinadi).
+ * Tartib: NEXT_PUBLIC_SITE_URL (o'z domeningiz) → Vercel production domeni → localhost.
+ */
+const vercelHost = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? (vercelHost ? `https://${vercelHost}` : "http://localhost:3000")).replace(/\/$/, "");
 
 /** hreflang muqobillari: path — tilsiz qism, masalan "/products/nmr" */
 export function alternates(lang: Locale, path = "") {
@@ -61,7 +65,7 @@ const uz = {
     models: "model",
   },
   trust: [
-    { k: "2021", v: "yildan beri bozorda" },
+    { k: "2022", v: "yildan beri bozorda" },
     { k: "220+", v: "model katalogda" },
     { k: "6", v: "jahon ishlab chiqaruvchisi" },
     { k: "24 soat", v: "ichida tijorat taklifi" },
@@ -114,7 +118,7 @@ const uz = {
   about: {
     eyebrow: "Kompaniya",
     title: "Distribyutor emas — analitik hamkor",
-    p1: "Spectrum Peak LLC 2021-yilda Toshkentda olimlar va tadbirkorlar tomonidan tashkil etilgan. Biz laboratoriya uskunalari, sarf materiallari, kimyoviy reagentlar va sertifikatlangan standart namunalarni yetakchi ishlab chiqaruvchilardan yetkazib beramiz.",
+    p1: "Spectrum Peak LLC 2022-yilda Toshkentda olimlar va tadbirkorlar tomonidan tashkil etilgan. Biz laboratoriya uskunalari, sarf materiallari, kimyoviy reagentlar va sertifikatlangan standart namunalarni yetakchi ishlab chiqaruvchilardan yetkazib beramiz.",
     p2: "Lekin asosiy qadriyatimiz — bilim. Mijozlarimizga ishlab chiqarish va sifat nazoratidagi analitik vazifalarni xalqaro standartlar asosida hal qilishda yordam beramiz.",
     est: "Tashkil etilgan",
     mission: "Missiya",
@@ -231,7 +235,7 @@ const ru: Dictionary = {
     models: "мод.",
   },
   trust: [
-    { k: "2021", v: "год основания" },
+    { k: "2022", v: "год основания" },
     { k: "220+", v: "моделей в каталоге" },
     { k: "6", v: "мировых производителей" },
     { k: "24 ч", v: "на коммерческое предложение" },
@@ -284,7 +288,7 @@ const ru: Dictionary = {
   about: {
     eyebrow: "Компания",
     title: "Не просто дистрибьютор — аналитический партнёр",
-    p1: "Spectrum Peak LLC основана в 2021 году в Ташкенте учёными и предпринимателями. Мы поставляем лабораторное оборудование, расходные материалы, химические реактивы и сертифицированные стандартные образцы ведущих производителей.",
+    p1: "Spectrum Peak LLC основана в 2022 году в Ташкенте учёными и предпринимателями. Мы поставляем лабораторное оборудование, расходные материалы, химические реактивы и сертифицированные стандартные образцы ведущих производителей.",
     p2: "Но главная наша ценность — знания. Мы помогаем клиентам решать аналитические задачи производства и контроля качества по международным стандартам.",
     est: "Основана",
     mission: "Миссия",
@@ -399,7 +403,7 @@ const en: Dictionary = {
     models: "models",
   },
   trust: [
-    { k: "2021", v: "founded" },
+    { k: "2022", v: "founded" },
     { k: "220+", v: "models in catalog" },
     { k: "6", v: "global manufacturers" },
     { k: "24 h", v: "to a commercial offer" },
@@ -452,7 +456,7 @@ const en: Dictionary = {
   about: {
     eyebrow: "Company",
     title: "Not just a distributor — an analytical partner",
-    p1: "Spectrum Peak LLC was founded in Tashkent in 2021 by scientists and entrepreneurs. We supply laboratory equipment, consumables, chemicals and certified reference materials from leading manufacturers.",
+    p1: "Spectrum Peak LLC was founded in Tashkent in 2022 by scientists and entrepreneurs. We supply laboratory equipment, consumables, chemicals and certified reference materials from leading manufacturers.",
     p2: "But our real value is knowledge. We help clients solve analytical challenges in production and quality control according to international standards.",
     est: "Founded",
     mission: "Mission",

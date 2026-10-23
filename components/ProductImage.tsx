@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { Media } from "@/lib/media";
+import { blurProps, type Media } from "@/lib/media";
 
 /** Mahsulot rasmi: shaffof/oq fonli suratlar studiya foniga singib ketadi (multiply) */
 export function ProductImage({
@@ -25,6 +25,7 @@ export function ProductImage({
             alt={media.alt}
             fill
             sizes={sizes}
+            {...blurProps(media.src)}
             loading={eager ? "eager" : undefined}
             fetchPriority={eager ? "high" : undefined}
             className={`transition-transform duration-700 ease-out group-hover:scale-[1.04] ${

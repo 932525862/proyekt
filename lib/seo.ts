@@ -59,7 +59,7 @@ export function organizationGraph(lang: Locale) {
         image: abs("/brand/spectrum-peak-mark.png"),
         description: d.meta.description,
         slogan: d.meta.tagline,
-        foundingDate: "2021",
+        foundingDate: "2022",
         email: company.email,
         telephone: company.phone.replace(/\s/g, ""),
         address: { "@type": "PostalAddress", addressLocality: lang === "ru" ? "Ташкент" : lang === "uz" ? "Toshkent" : "Tashkent", addressCountry: "UZ" },

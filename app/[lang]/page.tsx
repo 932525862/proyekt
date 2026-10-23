@@ -8,7 +8,7 @@ import { LeadForm } from "@/components/LeadForm";
 import { ProductImage } from "@/components/ProductImage";
 import { applications, brands, categories, featured, getCategory, modelCount, services } from "@/lib/catalog";
 import { company, getDictionary, isLocale, tr } from "@/lib/i18n";
-import { categoryMedia, featuredMedia, industries, pharmaFlow, photos } from "@/lib/media";
+import { blurProps, categoryMedia, featuredMedia, industries, pharmaFlow, photos } from "@/lib/media";
 import { faqPage } from "@/lib/seo";
 
 const trustIcons = ["calendar", "boxes", "factory", "timer"];
@@ -182,6 +182,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
               <Link
                 key={c.slug}
                 href={`/${lang}/products/${c.slug}`}
+                prefetch
                 className="reveal group flex flex-col overflow-hidden rounded-lg border border-line bg-card transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-[0_24px_50px_-24px_rgb(11_92_213/0.35)]"
               >
                 <ProductImage media={categoryMedia[c.slug]} sizes="(min-width:1024px) 300px, 50vw" pad="p-3 sm:p-6" className="aspect-[4/3]" />
@@ -334,7 +335,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             <h2 className={h2}>{d.services.title}</h2>
             <p className="mt-5 max-w-md text-[17px] leading-relaxed text-muted">{d.services.text}</p>
             <div className="relative mt-10 aspect-[4/3] overflow-hidden rounded-lg">
-              <Image src={photos.pipette.src} alt={photos.pipette.alt} fill sizes="(min-width:1024px) 480px, 100vw" className="object-cover" />
+              <Image src={photos.pipette.src} {...blurProps(photos.pipette.src)} alt={photos.pipette.alt} fill sizes="(min-width:1024px) 480px, 100vw" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-band/80 via-transparent" />
               <div className="absolute inset-x-0 top-0 h-full overflow-hidden">
                 <span className="block h-1/3 animate-scan bg-gradient-to-b from-transparent via-signal/25 to-transparent" />
@@ -420,6 +421,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
               >
                 <Image
                   src={ind.image.src}
+                  {...blurProps(ind.image.src)}
                   alt=""
                   fill
                   sizes={i === 0 ? "(min-width:1024px) 640px, 100vw" : "(min-width:1024px) 320px, 50vw"}
@@ -456,15 +458,15 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
         <div className={`${wrap} grid items-center gap-14 lg:grid-cols-2 lg:gap-20`}>
           <div className="relative grid grid-cols-[1.4fr_1fr] grid-rows-[auto_auto] gap-4">
             <div className="relative row-span-2 aspect-[3/4] overflow-hidden rounded-lg">
-              <Image src={photos.team.src} alt={photos.team.alt} fill sizes="(min-width:1024px) 360px, 60vw" className="object-cover" />
+              <Image src={photos.team.src} {...blurProps(photos.team.src)} alt={photos.team.alt} fill sizes="(min-width:1024px) 360px, 60vw" className="object-cover" />
             </div>
             <div className="relative aspect-square overflow-hidden rounded-lg">
-              <Image src={photos.beaker.src} alt={photos.beaker.alt} fill sizes="(min-width:1024px) 240px, 40vw" className="object-cover" />
+              <Image src={photos.beaker.src} {...blurProps(photos.beaker.src)} alt={photos.beaker.alt} fill sizes="(min-width:1024px) 240px, 40vw" className="object-cover" />
             </div>
             <div className="flex flex-col justify-between rounded-lg bg-accent p-5 text-accent-ink">
               <span className="eyebrow opacity-80">{d.about.est}</span>
               <span>
-                <span className="block text-5xl font-semibold leading-none tracking-[-0.04em] sm:text-6xl">2021</span>
+                <span className="block text-5xl font-semibold leading-none tracking-[-0.04em] sm:text-6xl">2022</span>
                 <span className="mt-2 block text-sm opacity-80">{d.contact.addressV}</span>
               </span>
             </div>

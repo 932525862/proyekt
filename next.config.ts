@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   images: {
     qualities: [75, 85],
+    // AVIF WebP'dan ~30–50% yengil — telefonda rasmlar tezroq ochiladi
+    formats: ["image/avif", "image/webp"],
   },
   turbopack: {
     rules: {

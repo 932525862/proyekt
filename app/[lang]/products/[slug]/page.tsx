@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { Icon } from "@/components/Icon";
 import { JsonLd } from "@/components/JsonLd";
 import { ModelExplorer } from "@/components/ModelExplorer";
@@ -38,7 +39,50 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/products/[
   });
 }
 
-export default async function CategoryPage({ params }: PageProps<"/[lang]/products/[slug]">) {
+/**
+ * Yo'nalish sahifasi. `params` Suspense ichida o'qiladi: boshqa sahifadan o'tganda
+ * karkas (skeleton) darhol ko'rinadi, kontent esa tayyor bo'lishi bilan almashadi.
+ * To'g'ridan-to'g'ri kirishda sahifa generateStaticParams orqali to'liq oldindan tayyor.
+ */
+export default function CategoryPage({ params }: PageProps<"/[lang]/products/[slug]">) {
+  return (
+    <Suspense fallback={<CategorySkeleton />}>
+      <CategoryContent params={params} />
+    </Suspense>
+  );
+}
+
+function CategorySkeleton() {
+  const bar = "animate-pulse rounded-md bg-white/10";
+  return (
+    <div aria-busy="true">
+      <section className="border-b border-line bg-band pb-12 pt-[124px] lg:pb-16 lg:pt-40">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1.1fr_1fr]">
+          <div className="space-y-5">
+            <div className={`${bar} h-3 w-40`} />
+            <div className={`${bar} h-12 w-4/5`} />
+            <div className={`${bar} h-4 w-full`} />
+            <div className={`${bar} h-4 w-3/4`} />
+          </div>
+          <div className={`${bar} aspect-[4/3] rounded-lg`} />
+        </div>
+      </section>
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 px-4 py-10 sm:grid-cols-3 sm:px-6 lg:grid-cols-4 xl:grid-cols-5">
+        {Array.from({ length: 10 }, (_, i) => (
+          <div key={i} className="overflow-hidden rounded-lg border border-line bg-card">
+            <div className="aspect-[4/3] animate-pulse bg-sunk" />
+            <div className="space-y-2 p-3.5">
+              <div className="h-3.5 w-2/3 animate-pulse rounded bg-sunk" />
+              <div className="h-3 w-1/2 animate-pulse rounded bg-sunk" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+async function CategoryContent({ params }: { params: PageProps<"/[lang]/products/[slug]">["params"] }) {
   const { lang, slug } = await params;
   const c = getCategory(slug);
   if (!isLocale(lang) || !c) notFound();
@@ -73,10 +117,10 @@ export default async function CategoryPage({ params }: PageProps<"/[lang]/produc
       <section className="relative isolate overflow-hidden border-b border-line bg-band pb-12 pt-[124px] text-on-band lg:pb-16 lg:pt-40">
         <div className="bg-blueprint absolute inset-0 -z-10" />
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <nav className="flex items-center gap-2 text-sm text-on-band/55">
-            <Link href={`/${lang}`} className="hover:text-white">{company.brand}</Link>
+          <nav className="flex min-w-0 items-center gap-2 text-sm text-on-band/55">
+            <Link href={`/${lang}`} className="shrink-0 whitespace-nowrap hover:text-white">{company.brand}</Link>
             <span>/</span>
-            <Link href={`/${lang}/products`} className="hover:text-white">{d.catalog.title}</Link>
+            <Link href={`/${lang}/products`} className="shrink-0 whitespace-nowrap hover:text-white">{d.catalog.title}</Link>
             <span>/</span>
             <span className="truncate text-on-band/85">{tr(c.name, lang)}</span>
           </nav>
@@ -144,6 +188,7 @@ export default async function CategoryPage({ params }: PageProps<"/[lang]/produc
               <Link
                 key={o.slug}
                 href={`/${lang}/products/${o.slug}`}
+                prefetch
                 className="group overflow-hidden rounded-lg border border-line bg-paper transition-colors hover:border-accent/50"
               >
                 <ProductImage media={categoryMedia[o.slug]} sizes="180px" pad="p-3" className="aspect-[4/3]" />

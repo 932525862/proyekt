@@ -65,6 +65,7 @@ export default async function ProductsPage({ params }: PageProps<"/[lang]/produc
             <Link
               key={c.slug}
               href={`/${lang}/products/${c.slug}`}
+              prefetch
               className="reveal group grid overflow-hidden rounded-lg border border-line bg-card transition-[border-color,box-shadow] duration-300 hover:border-accent/40 hover:shadow-[0_24px_50px_-24px_rgb(11_92_213/0.35)] lg:grid-cols-[0.9fr_1.1fr]"
             >
               <ProductImage media={categoryMedia[c.slug]} sizes="(min-width:1024px) 280px, 50vw" pad="p-3 sm:p-6" className="aspect-[4/3] lg:aspect-auto lg:min-h-64" />
