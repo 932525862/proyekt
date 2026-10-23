@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useCallback, useState, type FormEvent } from "react";
 import { Icon } from "./Icon";
+import { Toast, type ToastData } from "./Toast";
 import type { Dictionary, Locale } from "@/lib/i18n";
 
 type Props = {
@@ -21,13 +22,20 @@ const field =
 
 export function LeadForm({ lang, f, requestFor, options, defaultInterest = "", model, onClearModel }: Props) {
   const [status, setStatus] = useState<Status>("idle");
+  const [toast, setToast] = useState<(ToastData & { key: number }) | null>(null);
+  const closeToast = useCallback(() => setToast(null), []);
+  // har bir yuborishda yangi bildirishnoma (key — taymer qaytadan boshlanishi uchun)
+  const show = (kind: ToastData["kind"], title: string, text: string) => setToast({ kind, title, text, key: Date.now() });
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
-    if (!data.name?.trim() || (data.phone ?? "").replace(/\D/g, "").length < 7 || !data.consent) {
+    const invalid = !data.name?.trim() ? "name" : (data.phone ?? "").replace(/\D/g, "").length < 7 ? "phone" : !data.consent ? "consent" : null;
+    if (invalid) {
       setStatus("err");
+      show("error", f.errTitle, f.err);
+      (form.elements.namedItem(invalid) as HTMLElement | null)?.focus();
       return;
     }
     setStatus("sending");
@@ -39,14 +47,16 @@ export function LeadForm({ lang, f, requestFor, options, defaultInterest = "", m
       });
       if (!res.ok) throw new Error();
       setStatus("ok");
+      show("ok", f.okTitle, f.okText);
       form.reset();
       onClearModel?.();
     } catch {
       setStatus("fail");
+      show("error", f.failTitle, f.fail);
     }
   }
 
-  const msg = status === "ok" ? f.ok : status === "err" ? f.err : status === "fail" ? f.fail : "";
+  const msg = status === "ok" ? `${f.okTitle} ${f.okText}` : status === "err" ? f.err : status === "fail" ? f.fail : "";
 
   return (
     <form onSubmit={onSubmit} noValidate className="grid gap-4 rounded-lg border border-line bg-card p-5 shadow-[0_40px_80px_-30px_rgb(4_12_22/0.55)] sm:p-8">
@@ -112,13 +122,11 @@ export function LeadForm({ lang, f, requestFor, options, defaultInterest = "", m
         <Icon name="arrow" className="size-[18px] transition-transform group-hover:translate-x-1" />
       </button>
 
-      <p
-        role="status"
-        aria-live="polite"
-        className={`min-h-5 text-center text-sm font-medium ${status === "ok" ? "text-accent" : "text-red-500"}`}
-      >
+      {/* ekran o'quvchilar uchun; ko'rinadigan xabar — Toast */}
+      <p role="status" aria-live="polite" className="sr-only">
         {msg}
       </p>
+      {toast && <Toast key={toast.key} toast={toast} closeLabel={f.close} onClose={closeToast} />}
     </form>
   );
 }

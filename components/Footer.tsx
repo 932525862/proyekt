@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Icon } from "./Icon";
 import { Logo } from "./Logo";
-import { categories } from "@/lib/catalog";
+import { getCatalog, getContacts } from "@/lib/data";
 import { company, tr, type Dictionary, type Locale } from "@/lib/i18n";
 
 async function currentYear() {
@@ -10,7 +10,7 @@ async function currentYear() {
 }
 
 export async function Footer({ lang, dict }: { lang: Locale; dict: Dictionary }) {
-  const year = await currentYear();
+  const [year, categories, contacts] = await Promise.all([currentYear(), getCatalog(), getContacts()]);
   const col = "eyebrow text-signal mb-5";
   return (
     <footer className="bg-band text-on-band">
@@ -22,7 +22,7 @@ export async function Footer({ lang, dict }: { lang: Locale; dict: Dictionary })
             {(["telegram", "instagram", "facebook"] as const).map((s) => (
               <a
                 key={s}
-                href={company[s]}
+                href={contacts[s]}
                 aria-label={s}
                 target="_blank"
                 rel="noreferrer"
@@ -63,8 +63,8 @@ export async function Footer({ lang, dict }: { lang: Locale; dict: Dictionary })
         <div>
           <h2 className={col}>{dict.nav.contact}</h2>
           <ul className="space-y-2.5 text-[15px] text-on-band/75">
-            <li><a href={company.phoneHref} className="hover:text-white">{company.phone}</a></li>
-            <li><a href={`mailto:${company.email}`} className="hover:text-white">{company.email}</a></li>
+            <li><a href={contacts.phoneHref} className="hover:text-white">{contacts.phone}</a></li>
+            <li><a href={`mailto:${contacts.email}`} className="hover:text-white">{contacts.email}</a></li>
             <li className="text-on-band/50">{dict.contact.addressV}</li>
             <li className="text-on-band/50">{dict.contact.hoursV}</li>
           </ul>

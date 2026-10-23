@@ -29,10 +29,11 @@ export function BrandMark({ id, className = "" }: { id: string; className?: stri
   );
 }
 
-export function Logo({ className = "", inverted = false }: { className?: string; inverted?: boolean }) {
+/** id — sahifada bir nechta logotip bo'lsa (masalan, yashirin + ko'rinadigan), gradientlar to'qnashmasligi uchun */
+export function Logo({ className = "", inverted = false, id }: { className?: string; inverted?: boolean; id?: string }) {
   return (
     <span className={`inline-flex items-center gap-2.5 ${inverted ? "mark-on-dark" : ""} ${className}`}>
-      <BrandMark id={inverted ? "mark-ft" : "mark-hd"} className="h-8 w-auto shrink-0 sm:h-9" />
+      <BrandMark id={id ?? (inverted ? "mark-ft" : "mark-hd")} className="h-8 w-auto shrink-0 sm:h-9" />
       <span className="leading-none">
         <span className={`flex items-baseline gap-1.5 whitespace-nowrap text-[17px] font-semibold tracking-[-0.02em] sm:text-[19px] ${inverted ? "text-white" : ""}`}>
           {company.brand}

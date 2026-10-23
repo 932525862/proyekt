@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import "../globals.css";
-import { Header } from "@/components/Header";
+import { Suspense } from "react";
+import { Header, HeaderStatic } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
 import { alternates, company, getDictionary, isLocale, locales, ogLocales, siteUrl } from "@/lib/i18n";
+import { getCatalog, getContacts } from "@/lib/data";
 import { organizationGraph } from "@/lib/seo";
 
 export async function generateStaticParams() {
@@ -66,15 +68,18 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const dict = getDictionary(lang);
+  const [cats, contacts] = await Promise.all([getCatalog(), getContacts()]);
 
   return (
     <html lang={lang} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        <JsonLd data={organizationGraph(lang)} />
+        <JsonLd data={organizationGraph(lang, cats, contacts)} />
       </head>
       <body id="top" className="min-h-dvh overflow-x-hidden">
-        <Header lang={lang} nav={dict.nav} hours={dict.contact.hoursV} address={dict.contact.addressV} />
+        <Suspense fallback={<HeaderStatic lang={lang} nav={dict.nav} hours={dict.contact.hoursV} address={dict.contact.addressV} contacts={contacts} />}>
+          <Header lang={lang} nav={dict.nav} hours={dict.contact.hoursV} address={dict.contact.addressV} contacts={contacts} />
+        </Suspense>
         <main>{children}</main>
         <Footer lang={lang} dict={dict} />
       </body>

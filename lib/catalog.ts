@@ -17,7 +17,11 @@ export type Category = {
 
 const g = (name: ModelGroup["name"], models: string[]): ModelGroup => ({ name, models });
 
-export const categories: Category[] = [
+/**
+ * Boshlang'ich katalog (bazaga birinchi marta yoziladi — db/seed.ts).
+ * Saytning o'zi endi ma'lumotni bazadan oladi: lib/data.ts. O'zgartirishlar admin paneldan qilinadi.
+ */
+export const seedCategories: Category[] = [
   {
     slug: "nmr",
     symbol: "Nm",
@@ -234,23 +238,21 @@ export const categories: Category[] = [
   },
 ];
 
-export const modelCount = (c: Category) => c.groups.reduce((n, gr) => n + gr.models.length, 0);
-export const totalModels = categories.reduce((n, c) => n + modelCount(c), 0);
-export const getCategory = (slug: string) => categories.find((c) => c.slug === slug);
-
-export const featured: { name: string; slug: string; tag: string; spec: T }[] = [
-  { name: "Spinsolve 90", slug: "nmr", tag: "90 MHz", spec: { uz: "Kriogensiz stol ustidagi YaMR", ru: "Настольный ЯМР без криогеники", en: "Cryogen-free benchtop NMR" } },
-  { name: "timsTOF Pro 2", slug: "mass-spectrometry", tag: "TIMS · QTOF", spec: { uz: "4D-proteomika uchun", ru: "Для 4D-протеомики", en: "Built for 4D proteomics" } },
-  { name: "DIS 800i", slug: "dissolution", tag: "USP <711>", spec: { uz: "8 idishli dissolyutsiya testeri", ru: "8-сосудный тестер растворения", en: "8-vessel dissolution tester" } },
-  { name: "AZURA UHPLC", slug: "hplc", tag: "DAD · 6.1 L", spec: { uz: "Ultra yuqori bosimli xromatografiya", ru: "Сверхвысокое давление", en: "Ultra-high pressure LC" } },
-  { name: "Next Generation Impactor (NGI)", slug: "inhaler-testing", tag: "Ph. Eur. 2.9.18", spec: { uz: "Ingalyatorlar uchun kaskadli impaktor", ru: "Каскадный импактор для ингаляторов", en: "Cascade impactor for inhalers" } },
-  { name: "KERN ABP 100-5DM", slug: "balances", tag: "0.01 mg", spec: { uz: "Semi-mikro analitik tarozi", ru: "Полумикро аналитические весы", en: "Semi-micro analytical balance" } },
-  { name: "DART JumpShot", slug: "mass-spectrometry", tag: "Ambient MS", spec: { uz: "Minimal namuna tayyorlash", ru: "Минимальная пробоподготовка", en: "Minimal sample prep" } },
-  { name: "TBF 100i", slug: "tablet-testing", tag: "0–490 N", spec: { uz: "Tabletka qattiqligi testeri", ru: "Тестер прочности таблеток", en: "Tablet hardness tester" } },
-  { name: "LGC CRM", slug: "reference-materials", tag: "ISO 17034", spec: { uz: "CoA bilan standart namunalar", ru: "Стандартные образцы с CoA", en: "Reference materials with CoA" } },
+/** Boshlang'ich "Tanlangan uskunalar" ro'yxati (model nomi bo'yicha bazadagi mahsulotga bog'lanadi) */
+export const seedFeatured: { name: string; model: string; slug: string; tag: string; spec: T }[] = [
+  { name: "Spinsolve 90", model: "Spinsolve 90", slug: "nmr", tag: "90 MHz", spec: { uz: "Kriogensiz stol ustidagi YaMR", ru: "Настольный ЯМР без криогеники", en: "Cryogen-free benchtop NMR" } },
+  { name: "timsTOF Pro 2", model: "timsTOF Pro 2", slug: "mass-spectrometry", tag: "TIMS · QTOF", spec: { uz: "4D-proteomika uchun", ru: "Для 4D-протеомики", en: "Built for 4D proteomics" } },
+  { name: "DIS 800i", model: "DIS 800i", slug: "dissolution", tag: "USP <711>", spec: { uz: "8 idishli dissolyutsiya testeri", ru: "8-сосудный тестер растворения", en: "8-vessel dissolution tester" } },
+  { name: "AZURA UHPLC", model: "AZURA UHPLC LPG DAD 6.1 L", slug: "hplc", tag: "DAD · 6.1 L", spec: { uz: "Ultra yuqori bosimli xromatografiya", ru: "Сверхвысокое давление", en: "Ultra-high pressure LC" } },
+  { name: "Next Generation Impactor (NGI)", model: "Next Generation Impactor (NGI)", slug: "inhaler-testing", tag: "Ph. Eur. 2.9.18", spec: { uz: "Ingalyatorlar uchun kaskadli impaktor", ru: "Каскадный импактор для ингаляторов", en: "Cascade impactor for inhalers" } },
+  { name: "KERN ABP 100-5DM", model: "ABP 100-5DM", slug: "balances", tag: "0.01 mg", spec: { uz: "Semi-mikro analitik tarozi", ru: "Полумикро аналитические весы", en: "Semi-micro analytical balance" } },
+  { name: "DART JumpShot", model: "DART JumpShot", slug: "mass-spectrometry", tag: "Ambient MS", spec: { uz: "Minimal namuna tayyorlash", ru: "Минимальная пробоподготовка", en: "Minimal sample prep" } },
+  { name: "TBF 100i", model: "TBF 100i", slug: "tablet-testing", tag: "0–490 N", spec: { uz: "Tabletka qattiqligi testeri", ru: "Тестер прочности таблеток", en: "Tablet hardness tester" } },
+  { name: "LGC CRM", model: "LGC CRM catalog (on request)", slug: "reference-materials", tag: "ISO 17034", spec: { uz: "CoA bilan standart namunalar", ru: "Стандартные образцы с CoA", en: "Reference materials with CoA" } },
 ];
 
-export const services: { icon: string; title: T; text: T }[] = [
+/** Boshlang'ich xizmatlar ro'yxati (bazaga birinchi marta yoziladi; keyin admin paneldan boshqariladi) */
+export const seedServices: { icon: string; title: T; text: T }[] = [
   {
     icon: "sugar",
     title: { uz: "Shakar miqdorini aniqlash", ru: "Определение содержания сахаров", en: "Sugar content determination" },

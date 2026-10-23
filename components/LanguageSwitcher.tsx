@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Icon } from "./Icon";
 import { localeCookie, localeNames, locales, type Locale } from "@/lib/i18n";
@@ -14,8 +14,7 @@ function remember(l: Locale) {
 }
 
 /** Tanlovni eslab qoladi va sahifadagi bo'limni (#hash) saqlagan holda o'tadi */
-function useSwitch() {
-  const pathname = usePathname() ?? "/uz";
+function useSwitch(pathname: string) {
   const router = useRouter();
   return {
     href: (l: Locale) => swapLocale(pathname, l),
@@ -31,10 +30,10 @@ function useSwitch() {
 }
 
 /** Panel uchun ochiladigan menyu */
-export function LanguageMenu({ lang, label }: { lang: Locale; label: string }) {
+export function LanguageMenu({ lang, label, pathname }: { lang: Locale; label: string; pathname: string }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const { href, onClick } = useSwitch();
+  const { href, onClick } = useSwitch(pathname);
 
   useEffect(() => {
     if (!open) return;
@@ -99,8 +98,8 @@ export function LanguageMenu({ lang, label }: { lang: Locale; label: string }) {
 }
 
 /** Mobil menyu uchun segmentli tanlagich */
-export function LanguageTabs({ lang, onDone }: { lang: Locale; onDone?: () => void }) {
-  const { href, onClick } = useSwitch();
+export function LanguageTabs({ lang, onDone, pathname }: { lang: Locale; onDone?: () => void; pathname: string }) {
+  const { href, onClick } = useSwitch(pathname);
   return (
     <div className="grid grid-cols-3 gap-1 rounded-lg border border-line bg-sunk p-1">
       {locales.map((l) => (

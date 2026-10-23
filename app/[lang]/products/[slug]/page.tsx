@@ -6,20 +6,21 @@ import { Icon } from "@/components/Icon";
 import { JsonLd } from "@/components/JsonLd";
 import { ModelExplorer } from "@/components/ModelExplorer";
 import { ProductImage } from "@/components/ProductImage";
-import { categories, getCategory, modelCount } from "@/lib/catalog";
+import { getCatalog, getCategory, modelCount } from "@/lib/data";
 import { company, getDictionary, isLocale, locales, tr } from "@/lib/i18n";
-import { categoryMedia, modelImage } from "@/lib/media";
 import { breadcrumbs, categoryPage, pageMetadata } from "@/lib/seo";
-import { labels, modelSpecs, specText } from "@/lib/specs";
+import { labels, specText } from "@/lib/specs";
 
 export async function generateStaticParams() {
+  const categories = await getCatalog();
   return locales.flatMap((lang) => categories.map((c) => ({ lang, slug: c.slug })));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/products/[slug]">): Promise<Metadata> {
   const { lang, slug } = await params;
-  const c = getCategory(slug);
-  if (!isLocale(lang) || !c) return {};
+  const c = await getCategory(slug);
+  // mavjud bo'lmagan yoki o'chirilgan yo'nalish — haqiqiy 404 status
+  if (!isLocale(lang) || !c) notFound();
   const name = tr(c.name, lang);
   const city = { uz: "Toshkent", ru: "Ташкент", en: "Tashkent" }[lang];
   return pageMetadata({
@@ -32,9 +33,9 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/products/[
       `${name} ${c.brand}`,
       `${name} ${city}`,
       c.brand,
-      ...c.groups.map((g) => (typeof g.name === "string" ? g.name : tr(g.name, lang))),
-      ...c.groups.flatMap((g) => g.models).slice(0, 12),
-      ...(c.standards ?? []),
+      ...c.groups.map((g) => tr(g.name, lang)),
+      ...c.groups.flatMap((g) => g.products.map((p) => p.name)).slice(0, 12),
+      ...c.standards,
     ],
   });
 }
@@ -84,22 +85,19 @@ function CategorySkeleton() {
 
 async function CategoryContent({ params }: { params: PageProps<"/[lang]/products/[slug]">["params"] }) {
   const { lang, slug } = await params;
-  const c = getCategory(slug);
+  const [c, categories] = await Promise.all([getCategory(slug), getCatalog()]);
   if (!isLocale(lang) || !c) notFound();
   const d = getDictionary(lang);
 
   const groups = c.groups.map((g) => ({
-    name: typeof g.name === "string" ? g.name : tr(g.name, lang),
-    models: g.models.map((m) => {
-      const spec = modelSpecs[m];
-      return {
-        name: m,
-        image: modelImage(c, g.name, m),
-        cat: spec?.cat,
-        std: spec?.std,
-        specs: spec?.specs.map(([k, v]) => [tr(labels[k], lang), specText(v, lang)] as [string, string]),
-      };
-    }),
+    name: tr(g.name, lang),
+    models: g.products.map((p) => ({
+      name: p.name,
+      image: p.image,
+      cat: p.catNo,
+      std: p.std,
+      specs: p.specs.map(({ k, v }) => [tr(labels[k], lang), specText(v, lang)] as [string, string]),
+    })),
   }));
   const options = categories.map((x) => ({ value: x.slug, label: tr(x.name, lang) }));
   const others = categories.filter((x) => x.slug !== c.slug);
@@ -134,7 +132,7 @@ async function CategoryContent({ params }: { params: PageProps<"/[lang]/products
                 {tr(c.name, lang)}
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-relaxed text-on-band/65">{tr(c.description, lang)}</p>
-              {c.standards && (
+              {c.standards.length > 0 && (
                 <ul className="mt-6 flex flex-wrap gap-1.5" aria-label={d.catalog.standards}>
                   {c.standards.map((st) => (
                     <li key={st} className="inline-flex items-center gap-1.5 rounded-sm border border-signal/30 bg-signal/10 px-2 py-1 text-xs font-medium tech text-signal">
@@ -157,13 +155,15 @@ async function CategoryContent({ params }: { params: PageProps<"/[lang]/products
                 </div>
               </dl>
             </div>
-            <ProductImage
-              media={categoryMedia[c.slug]}
-              sizes="(min-width:1024px) 560px, 100vw"
-              eager
-              pad="p-10"
-              className="aspect-[4/3] rounded-lg ring-1 ring-white/10"
-            />
+            {c.image && (
+              <ProductImage
+                media={c.image}
+                sizes="(min-width:1024px) 560px, 100vw"
+                eager
+                pad="p-10"
+                className="aspect-[4/3] rounded-lg ring-1 ring-white/10"
+              />
+            )}
           </div>
         </div>
       </section>
@@ -191,7 +191,13 @@ async function CategoryContent({ params }: { params: PageProps<"/[lang]/products
                 prefetch
                 className="group overflow-hidden rounded-lg border border-line bg-paper transition-colors hover:border-accent/50"
               >
-                <ProductImage media={categoryMedia[o.slug]} sizes="180px" pad="p-3" className="aspect-[4/3]" />
+                {o.image ? (
+                  <ProductImage media={o.image} sizes="180px" pad="p-3" className="aspect-[4/3]" />
+                ) : (
+                  <span className="grid aspect-[4/3] place-items-center bg-sunk text-ink/30">
+                    <Icon name={o.slug} className="size-7" strokeWidth={1.25} />
+                  </span>
+                )}
                 <span className="flex items-start justify-between gap-2 border-t border-line p-3 text-[13px] font-medium leading-tight">
                   {tr(o.name, lang)}
                   <Icon name="arrow" className="size-3.5 shrink-0 text-muted transition-colors group-hover:text-accent" />

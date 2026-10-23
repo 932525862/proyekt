@@ -8,10 +8,20 @@ import { LanguageMenu, LanguageTabs } from "./LanguageSwitcher";
 import { Logo } from "./Logo";
 import { company, type Dictionary, type Locale } from "@/lib/i18n";
 
-type Props = { lang: Locale; nav: Dictionary["nav"]; hours: string; address: string };
+type Props = { lang: Locale; nav: Dictionary["nav"]; hours: string; address: string; contacts: { phone: string; phoneHref: string; email: string } };
 
-export function Header({ lang, nav, hours, address }: Props) {
-  const pathname = usePathname() ?? `/${lang}`;
+/** Joriy yo'lni o'qiydi — layout'da Suspense ichida ishlatiladi */
+export function Header(props: Props) {
+  const pathname = usePathname() ?? `/${props.lang}`;
+  return <HeaderView {...props} pathname={pathname} />;
+}
+
+/** Suspense zaxirasi: oldindan tayyorlangan qobiqda ham menyu to'liq ko'rinadi */
+export function HeaderStatic(props: Props) {
+  return <HeaderView {...props} pathname={`/${props.lang}`} />;
+}
+
+function HeaderView({ lang, nav, hours, address, contacts, pathname }: Props & { pathname: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -49,13 +59,13 @@ export function Header({ lang, nav, hours, address }: Props) {
         className={`overflow-hidden bg-band text-on-band/70 transition-[height] duration-300 ${scrolled ? "h-0" : "h-9"}`}
       >
         <div className="mx-auto flex h-9 max-w-7xl items-center gap-6 px-4 text-[12.5px] sm:px-6">
-          <a href={company.phoneHref} className="inline-flex items-center gap-2 hover:text-white">
+          <a href={contacts.phoneHref} className="inline-flex items-center gap-2 hover:text-white">
             <Icon name="phone" className="size-3.5" />
-            {company.phone}
+            {contacts.phone}
           </a>
-          <a href={`mailto:${company.email}`} className="hidden items-center gap-2 hover:text-white sm:inline-flex">
+          <a href={`mailto:${contacts.email}`} className="hidden items-center gap-2 hover:text-white sm:inline-flex">
             <Icon name="mail" className="size-3.5" />
-            {company.email}
+            {contacts.email}
           </a>
           <span className="hidden items-center gap-2 md:inline-flex">
             <Icon name="clock" className="size-3.5" />
@@ -101,7 +111,7 @@ export function Header({ lang, nav, hours, address }: Props) {
           </nav>
 
           <div className="ml-auto flex items-center gap-2 lg:ml-4">
-            <LanguageMenu lang={lang} label={nav.language} />
+            <LanguageMenu lang={lang} label={nav.language} pathname={pathname} />
 
             <button
               type="button"
@@ -158,7 +168,7 @@ export function Header({ lang, nav, hours, address }: Props) {
           ))}
           <div className="mt-6">
             <span className="mb-2 block eyebrow text-muted">{nav.language}</span>
-            <LanguageTabs lang={lang} onDone={() => setOpen(false)} />
+            <LanguageTabs lang={lang} onDone={() => setOpen(false)} pathname={pathname} />
           </div>
           <Link
             href={`/${lang}#contact`}

@@ -1,23 +1,24 @@
 import type { MetadataRoute } from "next";
-import { categories, featured } from "@/lib/catalog";
+import { getCatalog, getFeatured } from "@/lib/data";
 import { defaultLocale, locales, siteUrl } from "@/lib/i18n";
-import { categoryMedia, featuredMedia, modelImage, photos } from "@/lib/media";
+import { photos } from "@/lib/media";
 
 /** Har bir sahifa uch tilda: hreflang muqobillari va sahifadagi asosiy rasmlar bilan */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   "use cache";
   // build vaqti — sahifalar har deploy bilan yangilanadi
   const lastModified = new Date();
-  const abs = (p: string) => `${siteUrl}${p}`;
+  const abs = (p: string) => (/^https?:/.test(p) ? p : `${siteUrl}${p}`);
+  const [categories, featured] = await Promise.all([getCatalog(), getFeatured()]);
   const uniq = (xs: (string | undefined)[]) => [...new Set(xs.filter(Boolean) as string[])].map(abs);
 
   const pages: { path: string; priority: number; images: string[] }[] = [
-    { path: "", priority: 1, images: uniq([photos.hero.src, ...featured.map((f) => featuredMedia[f.name]?.src)]) },
-    { path: "/products", priority: 0.9, images: uniq(categories.map((c) => categoryMedia[c.slug].src)) },
+    { path: "", priority: 1, images: uniq([photos.hero.src, ...featured.map((f) => f.product.image?.src)]) },
+    { path: "/products", priority: 0.9, images: uniq(categories.map((c) => c.image?.src)) },
     ...categories.map((c) => ({
       path: `/products/${c.slug}`,
       priority: 0.8,
-      images: uniq([categoryMedia[c.slug].src, ...c.groups.flatMap((g) => g.models.map((m) => modelImage(c, g.name, m)?.src))]).slice(0, 20),
+      images: uniq([c.image?.src, ...c.groups.flatMap((g) => g.products.map((p) => p.image?.src))]).slice(0, 20),
     })),
   ];
 

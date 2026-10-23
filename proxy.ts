@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { defaultLocale, isLocale, localeCookie, type Locale } from "@/lib/i18n";
 
 /** Accept-Language sarlavhasidan eng mos tilni tanlaydi (q-qiymatlari bo'yicha) */
@@ -15,9 +16,20 @@ function fromAcceptLanguage(header: string | null): Locale | undefined {
   return ranked.map((r) => r.lang).find((l): l is Locale => isLocale(l));
 }
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const first = pathname.split("/")[1] ?? "";
+
+  // Admin panel: til yo'naltirishi yo'q; kirmagan foydalanuvchi login sahifasiga
+  if (first === "admin") {
+    if (pathname === "/admin/login") return;
+    if (await verifySessionToken(request.cookies.get(SESSION_COOKIE)?.value)) return;
+    const url = request.nextUrl.clone();
+    url.pathname = "/admin/login";
+    url.search = pathname === "/admin" ? "" : `?next=${encodeURIComponent(pathname + request.nextUrl.search)}`;
+    return NextResponse.redirect(url);
+  }
+
   if (isLocale(first)) return;
 
   const saved = request.cookies.get(localeCookie)?.value;

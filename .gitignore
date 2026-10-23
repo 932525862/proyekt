@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# lokal ma'lumotlar bazasi va yuklangan rasmlar
+/.data/
+/public/uploads/

@@ -1,7 +1,7 @@
-import { brands, categories, type Category } from "./catalog";
+import { brands } from "./catalog";
+import type { Category, Contacts } from "./data";
 import type { Metadata } from "next";
 import { alternates, company, getDictionary, locales, ogLocales, siteUrl, tr, type Locale } from "./i18n";
-import { categoryMedia } from "./media";
 
 /**
  * Sahifa metama'lumotlari: canonical + hreflang + to'liq Open Graph / Twitter.
@@ -35,15 +35,22 @@ export function clip(text: string, max = 158) {
   return cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:—–-]\s*$/, "") + "…";
 }
 
-const abs = (path: string) => `${siteUrl}${path}`;
+const abs = (path: string) => (/^https?:/.test(path) ? path : `${siteUrl}${path}`);
 const orgId = abs("/#organization");
 const siteId = abs("/#website");
 
 /** Faqat haqiqiy profil havolalari (bo'sh shablonlar emas) */
-const profiles = [company.telegram, company.instagram, company.facebook].filter((u) => new URL(u).pathname.replace(/\//g, "").length > 0);
+const profiles = (c: Contacts) =>
+  [c.telegram, c.instagram, c.facebook].filter((u) => {
+    try {
+      return new URL(u).pathname.replace(/\//g, "").length > 0;
+    } catch {
+      return false;
+    }
+  });
 
 /** Har bir sahifada: kompaniya va sayt haqida */
-export function organizationGraph(lang: Locale) {
+export function organizationGraph(lang: Locale, cats: Category[], contacts: Contacts) {
   const d = getDictionary(lang);
   return {
     "@context": "https://schema.org",
@@ -60,24 +67,24 @@ export function organizationGraph(lang: Locale) {
         description: d.meta.description,
         slogan: d.meta.tagline,
         foundingDate: "2022",
-        email: company.email,
-        telephone: company.phone.replace(/\s/g, ""),
+        email: contacts.email,
+        telephone: contacts.phone.replace(/\s/g, ""),
         address: { "@type": "PostalAddress", addressLocality: lang === "ru" ? "Ташкент" : lang === "uz" ? "Toshkent" : "Tashkent", addressCountry: "UZ" },
         areaServed: [{ "@type": "Country", name: "Uzbekistan" }, { "@type": "Place", name: "Central Asia" }],
         contactPoint: [
           {
             "@type": "ContactPoint",
             contactType: "sales",
-            telephone: company.phone.replace(/\s/g, ""),
-            email: company.email,
+            telephone: contacts.phone.replace(/\s/g, ""),
+            email: contacts.email,
             areaServed: "UZ",
             availableLanguage: ["uz", "ru", "en"],
             hoursAvailable: { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "18:00" },
           },
         ],
         brand: brands.map((name) => ({ "@type": "Brand", name })),
-        knowsAbout: categories.map((c) => tr(c.name, "en")),
-        ...(profiles.length ? { sameAs: profiles } : {}),
+        knowsAbout: cats.map((c) => tr(c.name, "en")),
+        ...(profiles(contacts).length ? { sameAs: profiles(contacts) } : {}),
       },
       {
         "@type": "WebSite",
@@ -109,7 +116,7 @@ export function faqPage(lang: Locale) {
 }
 
 /** Katalog: barcha yo'nalishlar ro'yxati */
-export function catalogPage(lang: Locale) {
+export function catalogPage(lang: Locale, cats: Category[]) {
   const d = getDictionary(lang);
   return {
     "@context": "https://schema.org",
@@ -121,13 +128,13 @@ export function catalogPage(lang: Locale) {
     isPartOf: { "@id": siteId },
     mainEntity: {
       "@type": "ItemList",
-      numberOfItems: categories.length,
-      itemListElement: categories.map((c, i) => ({
+      numberOfItems: cats.length,
+      itemListElement: cats.map((c, i) => ({
         "@type": "ListItem",
         position: i + 1,
         name: tr(c.name, lang),
         url: abs(`/${lang}/products/${c.slug}`),
-        image: abs(categoryMedia[c.slug].src),
+        ...(c.image ? { image: abs(c.image.src) } : {}),
       })),
     },
   };

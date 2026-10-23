@@ -4,7 +4,7 @@ import type { Locale, T } from "./i18n";
  * Model spetsifikatsiyalari (ishlab chiqaruvchi ma'lumotlari asosida).
  * cat — ishlab chiqaruvchining katalog raqami, std — farmakopeya / standart muvofiqligi.
  */
-type SpecKey = keyof typeof labels;
+export type SpecKey = keyof typeof labels;
 export type ModelSpec = { cat?: string; std?: string; specs: [SpecKey, string | T][] };
 
 export const labels = {

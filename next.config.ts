@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
     qualities: [75, 85],
     // AVIF WebP'dan ~30–50% yengil — telefonda rasmlar tezroq ochiladi
     formats: ["image/avif", "image/webp"],
+    // admin yuklagan rasmlar (Vercel Blob)
+    remotePatterns: [{ protocol: "https", hostname: "*.public.blob.vercel-storage.com" }],
   },
   turbopack: {
     rules: {

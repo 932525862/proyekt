@@ -167,6 +167,20 @@
   }
 }
 
+/* Bildirishnoma (toast): paydo bo'lish va qolgan vaqt chizig'i */
+.toast-in {
+  animation: toast-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.toast-timer {
+  animation: toast-timer linear forwards;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+}
+@keyframes toast-timer {
+  to { transform: scaleX(0); }
+}
+
 @keyframes reveal-up {
   from { opacity: 0; transform: translateY(28px); }
 }

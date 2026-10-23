@@ -6,9 +6,10 @@ import { JsonLd } from "@/components/JsonLd";
 import { LabScene } from "@/components/LabScene";
 import { LeadForm } from "@/components/LeadForm";
 import { ProductImage } from "@/components/ProductImage";
-import { applications, brands, categories, featured, getCategory, modelCount, services } from "@/lib/catalog";
-import { company, getDictionary, isLocale, tr } from "@/lib/i18n";
-import { blurProps, categoryMedia, featuredMedia, industries, pharmaFlow, photos } from "@/lib/media";
+import { applications, brands } from "@/lib/catalog";
+import { getCatalog, getContacts, getFeatured, getServices, getServicesSection, modelCount } from "@/lib/data";
+import { getDictionary, isLocale, tr } from "@/lib/i18n";
+import { blurProps, industries, pharmaFlow, photos } from "@/lib/media";
 import { faqPage } from "@/lib/seo";
 
 const trustIcons = ["calendar", "boxes", "factory", "timer"];
@@ -21,7 +22,6 @@ const pharmaSteps = [
   { media: pharmaFlow.dissolution, slug: "dissolution", icon: "dissolution" },
   { media: pharmaFlow.inhaler, slug: "inhaler-testing", icon: "inhaler-testing" },
 ];
-const standards = [...new Set(categories.flatMap((c) => c.standards ?? []))];
 
 const wrap = "mx-auto max-w-7xl px-4 sm:px-6";
 const h2 = "mt-4 text-balance text-[2rem] font-semibold leading-[1.12] tracking-[-0.022em] sm:text-[2.6rem]";
@@ -44,7 +44,9 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const d = getDictionary(lang);
+  const [categories, featured, contacts, services, servicesSection] = await Promise.all([getCatalog(), getFeatured(), getContacts(), getServices(), getServicesSection()]);
   const options = categories.map((c) => ({ value: c.slug, label: tr(c.name, lang) }));
+  const standards = [...new Set(categories.flatMap((c) => c.standards))];
 
   return (
     <>
@@ -185,7 +187,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 prefetch
                 className="reveal group flex flex-col overflow-hidden rounded-lg border border-line bg-card transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-[0_24px_50px_-24px_rgb(11_92_213/0.35)]"
               >
-                <ProductImage media={categoryMedia[c.slug]} sizes="(min-width:1024px) 300px, 50vw" pad="p-3 sm:p-6" className="aspect-[4/3]" />
+                {c.image && <ProductImage media={c.image} sizes="(min-width:1024px) 300px, 50vw" pad="p-3 sm:p-6" className="aspect-[4/3]" />}
                 <div className="flex flex-1 flex-col border-t border-line p-3.5 sm:p-5">
                   <div className="flex flex-col items-start gap-1 eyebrow text-muted sm:flex-row sm:items-center sm:justify-between">
                     <span className="flex min-w-0 max-w-full items-center gap-2">
@@ -220,24 +222,23 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           </div>
 
           <div className="mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-5 lg:grid-cols-3">
-            {featured.map((p, i) => {
-              const cat = getCategory(p.slug)!;
+            {featured.map(({ product: p, category: cat }, i) => {
               // toq sonli ro'yxatda oxirgi kartochka telefonda butun qatorni egallaydi
               const wide = featured.length % 2 === 1 && i === featured.length - 1;
               return (
                 <Link
-                  key={p.name}
-                  href={`/${lang}/products/${p.slug}`}
+                  key={p.id}
+                  href={`/${lang}/products/${cat.slug}`}
                   className={`reveal group relative flex flex-col ${wide ? "col-span-2 lg:col-span-1" : ""} overflow-hidden rounded-lg border border-line bg-paper transition-[border-color,box-shadow] duration-300 hover:border-accent/40 hover:shadow-[0_24px_50px_-24px_rgb(11_92_213/0.35)]`}
                 >
                   <div className="relative">
                     <ProductImage
-                      media={featuredMedia[p.name]}
+                      media={p.image ?? cat.image ?? { src: photos.pipette.src, alt: p.name, fit: "cover" }}
                       sizes={wide ? "(min-width:1024px) 400px, 100vw" : "(min-width:1024px) 400px, 50vw"}
                       className={wide ? "aspect-[2/1] lg:aspect-[16/11]" : "aspect-[4/3] sm:aspect-[16/11]"}
                       pad="p-3 sm:p-8"
                     />
-                    <span className="absolute left-2 top-2 max-w-[calc(100%-1rem)] truncate rounded-sm bg-band px-2 py-0.5 text-[11px] font-semibold tech text-white sm:left-4 sm:top-4 sm:px-2.5 sm:py-1 sm:text-xs">{p.tag}</span>
+                    <span className="absolute left-2 top-2 max-w-[calc(100%-1rem)] truncate rounded-sm bg-band px-2 py-0.5 text-[11px] font-semibold tech text-white sm:left-4 sm:top-4 sm:px-2.5 sm:py-1 sm:text-xs">{p.featuredTag}</span>
                   </div>
                   <div className="flex flex-1 flex-col p-3.5 sm:p-6">
                     <span className="truncate eyebrow text-muted">
@@ -245,7 +246,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                       <span className="hidden sm:inline"> · {tr(cat.name, lang)}</span>
                     </span>
                     <h3 className="mt-1.5 text-base font-semibold leading-snug tracking-tight sm:mt-2 sm:text-2xl">{p.name}</h3>
-                    <p className="mb-3 mt-1 text-xs leading-snug text-muted sm:mb-6 sm:mt-1.5 sm:text-base">{tr(p.spec, lang)}</p>
+                    <p className="mb-3 mt-1 text-xs leading-snug text-muted sm:mb-6 sm:mt-1.5 sm:text-base">{p.featuredNote ? tr(p.featuredNote, lang) : (p.std ?? "")}</p>
                     <span className="mt-auto flex items-center justify-between border-t border-line pt-3 text-[13px] font-semibold sm:pt-4 sm:text-sm">
                       <span className="text-accent">{d.nav.quote}</span>
                       <Icon name="arrowUp" className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent sm:size-5" />
@@ -332,8 +333,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
         <div className={`${wrap} grid gap-12 lg:grid-cols-[0.95fr_1.3fr] lg:gap-16`}>
           <div className="lg:sticky lg:top-32 lg:self-start">
             <Eyebrow n="04">{d.services.eyebrow}</Eyebrow>
-            <h2 className={h2}>{d.services.title}</h2>
-            <p className="mt-5 max-w-md text-[17px] leading-relaxed text-muted">{d.services.text}</p>
+            <h2 className={h2}>{servicesSection.title?.[lang] || d.services.title}</h2>
+            <p className="mt-5 max-w-md text-[17px] leading-relaxed text-muted">{servicesSection.text?.[lang] || d.services.text}</p>
             <div className="relative mt-10 aspect-[4/3] overflow-hidden rounded-lg">
               <Image src={photos.pipette.src} {...blurProps(photos.pipette.src)} alt={photos.pipette.alt} fill sizes="(min-width:1024px) 480px, 100vw" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-band/80 via-transparent" />
@@ -355,7 +356,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           <ol className="grid gap-4 sm:grid-cols-2">
             {services.map((s, i) => (
               <li
-                key={s.icon}
+                key={s.id}
                 className={`reveal group rounded-lg border border-line bg-card p-6 transition-[border-color,box-shadow] duration-300 hover:border-accent/40 hover:shadow-[0_18px_40px_-24px_rgb(11_92_213/0.35)] ${
                   services.length % 2 === 1 && i === services.length - 1 ? "sm:col-span-2" : ""
                 }`}
@@ -510,11 +511,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             <h2 className={h2}>{d.faq.title}</h2>
             <p className="mt-5 max-w-sm text-muted">{d.faq.text}</p>
             <a
-              href={company.phoneHref}
+              href={contacts.phoneHref}
               className="mt-8 inline-flex items-center gap-3 rounded-md border border-line bg-card px-4 py-3 font-semibold transition-colors hover:border-accent hover:text-accent"
             >
               <Icon name="phone" className="size-4 text-accent" />
-              {company.phone}
+              {contacts.phone}
             </a>
           </div>
           <div className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-card">
@@ -546,8 +547,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             <p className="mt-5 max-w-md text-[17px] leading-relaxed text-on-band/65">{d.contact.text}</p>
             <ul className="mt-10 grid gap-3 sm:grid-cols-2">
               {[
-                { icon: "phone", k: d.contact.phone, v: company.phone, href: company.phoneHref },
-                { icon: "mail", k: d.contact.email, v: company.email, href: `mailto:${company.email}` },
+                { icon: "phone", k: d.contact.phone, v: contacts.phone, href: contacts.phoneHref },
+                { icon: "mail", k: d.contact.email, v: contacts.email, href: `mailto:${contacts.email}` },
                 { icon: "pin", k: d.contact.address, v: d.contact.addressV },
                 { icon: "clock", k: d.contact.hours, v: d.contact.hoursV },
               ].map((c) => (

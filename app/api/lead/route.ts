@@ -1,9 +1,11 @@
-import { company } from "@/lib/i18n";
+import { db, ensureDb, schema } from "@/db";
+import { getCategory } from "@/lib/data";
+import { notifyLead } from "@/lib/telegram";
 
 /**
  * So'rov formasi uchun endpoint.
- * TELEGRAM_BOT_TOKEN va TELEGRAM_CHAT_ID muhit o'zgaruvchilari berilsa,
- * har bir so'rov Telegram guruhingizga yuboriladi.
+ * Har bir so'rov bazaga yoziladi (admin panel → Zayavkalar).
+ * TELEGRAM_BOT_TOKEN va TELEGRAM_CHAT_ID berilsa, qo'shimcha ravishda Telegram guruhingizga ham yuboriladi.
  */
 type Lead = {
   name?: string;
@@ -42,32 +44,44 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, error: "validation" }, { status: 422 });
   }
 
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-
-  if (token && chatId) {
-    const text = [
-      `🧪 Yangi so'rov — ${company.name}`,
-      `👤 ${lead.name}${lead.company ? ` (${lead.company})` : ""}`,
-      `📞 ${lead.phone}`,
-      lead.email && `✉️ ${lead.email}`,
-      lead.interest && `📦 ${lead.interest}`,
-      lead.model && `🔬 ${lead.model}`,
-      lead.message && `💬 ${lead.message}`,
-      `🌐 ${lead.lang}`,
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chatId, text }),
-    });
-    if (!res.ok) return Response.json({ ok: false, error: "delivery" }, { status: 502 });
-  } else {
-    console.info("[lead]", lead);
+  // 1) bazaga saqlash — asosiy kanal
+  let id: number | undefined;
+  try {
+    await ensureDb();
+    const row = await db
+      .insert(schema.leads)
+      .values({
+        createdAt: new Date(),
+        name: lead.name,
+        company: lead.company || null,
+        phone: lead.phone,
+        email: lead.email || null,
+        interest: lead.interest || null,
+        model: lead.model || null,
+        message: lead.message || null,
+        lang: lead.lang || null,
+      })
+      .returning({ id: schema.leads.id })
+      .get();
+    id = row.id;
+  } catch (e) {
+    console.error("[lead] bazaga yozilmadi", e);
   }
 
-  return Response.json({ ok: true });
+  // 2) Telegram — qo'shimcha xabarnoma (yo'nalish kodi o'rniga o'qiladigan nomi)
+  const category = lead.interest ? await getCategory(lead.interest).catch(() => undefined) : undefined;
+  const sent = await notifyLead({
+    id,
+    name: lead.name,
+    company: lead.company,
+    phone: lead.phone,
+    email: lead.email,
+    interest: category ? category.name.uz : lead.interest,
+    model: lead.model,
+    message: lead.message,
+    lang: lead.lang,
+  });
+
+  if (!id && !sent) return Response.json({ ok: false, error: "delivery" }, { status: 502 });
+  return Response.json({ ok: true, id });
 }
