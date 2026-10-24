@@ -76,6 +76,8 @@ export function LabScene({ variant, className = "" }: { variant: Variant; classN
       const track = <T extends { dispose(): void }>(x: T) => (disposables.push(x), x);
 
       let update: (t: number) => void;
+      // sahna o'lchamiga moslashish (molekula kadri)
+      let fit: (width: number, height: number) => void = () => {};
 
       if (variant === "molecule") {
         camera.position.set(0, 0, 17);
@@ -91,7 +93,7 @@ export function LabScene({ variant, className = "" }: { variant: Variant; classN
         root.add(mol);
 
         // Atrofdagi zarrachalar buluti
-        const n = 420;
+        const n = 700;
         const pos = new Float32Array(n * 3);
         for (let i = 0; i < n; i++) {
           const r = 5.5 + Math.random() * 3.5;
@@ -102,7 +104,7 @@ export function LabScene({ variant, className = "" }: { variant: Variant; classN
         const pg = track(new THREE.BufferGeometry());
         pg.setAttribute("position", new THREE.BufferAttribute(pos, 3));
         const dust = new THREE.Points(pg, track(new THREE.PointsMaterial({ color: 0x7fa6ff, size: 0.045, transparent: true, opacity: 0.7 })));
-        root.add(dust);
+        scene.add(dust);
 
         // Orbital halqalar
         const rings = [5.2, 6.4].map((r, i) => {
@@ -115,10 +117,23 @@ export function LabScene({ variant, className = "" }: { variant: Variant; classN
           return ring;
         });
 
+        // Butun orqa fonni to'ldirish: keng ekranda molekula o'ng ustunga siljiydi, zarrachalar butun kenglikka yoyiladi
+        fit = (width, height) => {
+          const aspect = width / height;
+          const wide = width >= 1024;
+          const worldH = 2 * camera.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+          const worldW = worldH * aspect;
+          const col = wide ? 0.25 * Math.min(width, 1280) : 0;
+          root.position.x = (col / width) * worldW;
+          root.scale.setScalar(wide ? 0.8 : 0.7);
+          dust.scale.set(Math.max(1, aspect * 0.75), 1.4, 1);
+        };
+
         update = (t) => {
           mol.rotation.y = t * 0.25;
           mol.rotation.x = Math.sin(t * 0.3) * 0.25;
-          dust.rotation.y = -t * 0.03;
+          dust.rotation.y = Math.sin(t * 0.05) * 0.12;
+          dust.rotation.x = Math.cos(t * 0.04) * 0.05;
           rings[0].rotation.z = t * 0.12;
           rings[1].rotation.z = -t * 0.08;
         };
@@ -202,6 +217,7 @@ export function LabScene({ variant, className = "" }: { variant: Variant; classN
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
+        fit(width, height);
       };
       const ro = new ResizeObserver(resize);
       ro.observe(host);

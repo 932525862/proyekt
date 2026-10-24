@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/Icon";
 import { JsonLd } from "@/components/JsonLd";
+import { MoleculeNetwork } from "@/components/MoleculeNetwork";
 import { LabScene } from "@/components/LabScene";
 import { LeadForm } from "@/components/LeadForm";
 import { ProductImage } from "@/components/ProductImage";
@@ -64,8 +65,9 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
         />
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,var(--band)_25%,rgb(7_22_41/0.85)_55%,rgb(7_22_41/0.55))]" />
         <div className="bg-blueprint absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,#000,transparent)]" />
+        <MoleculeNetwork className="absolute inset-0 -z-10" />
 
-        <div className={`${wrap} grid items-center gap-8 pb-12 pt-14 lg:grid-cols-[1.05fr_1fr] lg:gap-4 lg:pb-16 lg:pt-20`}>
+        <div className={`${wrap} grid items-center gap-8 pb-12 pt-14  lg:pb-16 lg:pt-20`}>
           <div className="animate-rise">
             <span className="inline-flex items-center gap-2.5 rounded-sm border border-white/15 bg-white/5 px-3 py-1.5 eyebrow text-on-band/80 backdrop-blur">
               <span className="relative flex size-2">
@@ -94,40 +96,6 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 <Icon name="phone" className="size-4" />
                 {d.hero.secondary}
               </Link>
-            </div>
-          </div>
-
-          {/* 3D molekula + o'lchov "HUD" detallari */}
-          <div className="relative mx-auto aspect-square w-full max-w-[560px]">
-            <LabScene variant="molecule" className="absolute inset-0" />
-            <div aria-hidden className="pointer-events-none absolute inset-0 font-mono text-[11px] tracking-[0.04em] text-on-band/60">
-              <span className="absolute left-0 top-6 border-l border-signal/60 pl-3">
-                <span className="block text-signal">C₈H₁₀N₄O₂</span>
-                Caffeine · CAS 58-08-2
-              </span>
-              <span className="absolute bottom-10 right-0 border-r border-signal/60 pr-3 text-right">
-                <span className="block text-white/80">m/z 195.0877</span>
-                [M+H]⁺ · ESI-QTOF
-              </span>
-              <span className="absolute bottom-24 left-2 hidden sm:block">
-                ¹H NMR · 90 MHz
-                <svg viewBox="0 0 140 34" className="mt-1.5 h-8 w-36 text-signal/80">
-                  <path
-                    d="M0 32 H22 L25 8 L28 32 H52 L54 20 L56 32 H80 L83 2 L86 32 H110 L112 24 L114 32 H140"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.2"
-                    pathLength={100}
-                    strokeDasharray={100}
-                    strokeDashoffset={100}
-                    className="animate-draw"
-                  />
-                </svg>
-              </span>
-              {/* burchak belgilari */}
-              {["left-0 top-0 border-l border-t", "right-0 top-0 border-r border-t", "bottom-0 left-0 border-b border-l", "bottom-0 right-0 border-b border-r"].map((c) => (
-                <span key={c} className={`absolute size-5 border-white/25 ${c}`} />
-              ))}
             </div>
           </div>
         </div>

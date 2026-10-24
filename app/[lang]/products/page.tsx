@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CatalogSearch } from "@/components/CatalogSearch";
 import { Icon } from "@/components/Icon";
 import { JsonLd } from "@/components/JsonLd";
 import { ProductImage } from "@/components/ProductImage";
@@ -9,6 +10,7 @@ import { brands } from "@/lib/catalog";
 import { getCatalog, modelCount, totalModels } from "@/lib/data";
 import { company, getDictionary, isLocale, tr } from "@/lib/i18n";
 import { photos } from "@/lib/media";
+import { searchEntries } from "@/lib/search";
 import { breadcrumbs, catalogPage, pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/products">): Promise<Metadata> {
@@ -30,6 +32,7 @@ export default async function ProductsPage({ params }: PageProps<"/[lang]/produc
   if (!isLocale(lang)) notFound();
   const d = getDictionary(lang);
   const categories = await getCatalog();
+  const entries = searchEntries(categories, lang);
 
   return (
     <>
@@ -63,7 +66,8 @@ export default async function ProductsPage({ params }: PageProps<"/[lang]/produc
       </section>
 
       <section className="py-14 lg:py-20">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 px-4 sm:gap-5 sm:px-6">
+        <CatalogSearch lang={lang} dict={{ catalog: d.catalog }} entries={entries}>
+        <div className="mx-auto mt-8 grid max-w-7xl grid-cols-2 gap-3 px-4 sm:gap-5 sm:px-6">
           {categories.map((c) => (
             <Link
               key={c.slug}
@@ -111,6 +115,7 @@ export default async function ProductsPage({ params }: PageProps<"/[lang]/produc
             </Link>
           ))}
         </div>
+        </CatalogSearch>
         <p className="mx-auto mt-8 max-w-7xl px-4 text-xs text-muted sm:px-6">{d.catalog.imageNote}</p>
       </section>
     </>

@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { HeaderSearch, type SearchProps } from "./HeaderSearch";
 import { Icon } from "./Icon";
 import { LanguageMenu, LanguageTabs } from "./LanguageSwitcher";
 import { Logo } from "./Logo";
 import { company, type Dictionary, type Locale } from "@/lib/i18n";
 
-type Props = { lang: Locale; nav: Dictionary["nav"]; hours: string; address: string; contacts: { phone: string; phoneHref: string; email: string } };
+type Props = { lang: Locale; nav: Dictionary["nav"]; hours: string; address: string; contacts: { phone: string; phoneHref: string; email: string }; search: SearchProps };
 
 /** Joriy yo'lni o'qiydi — layout'da Suspense ichida ishlatiladi */
 export function Header(props: Props) {
@@ -21,7 +22,7 @@ export function HeaderStatic(props: Props) {
   return <HeaderView {...props} pathname={`/${props.lang}`} />;
 }
 
-function HeaderView({ lang, nav, hours, address, contacts, pathname }: Props & { pathname: string }) {
+function HeaderView({ lang, nav, hours, address, contacts, search, pathname }: Props & { pathname: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -111,6 +112,7 @@ function HeaderView({ lang, nav, hours, address, contacts, pathname }: Props & {
           </nav>
 
           <div className="ml-auto flex items-center gap-2 lg:ml-4">
+            <HeaderSearch lang={lang} {...search} />
             <LanguageMenu lang={lang} label={nav.language} pathname={pathname} />
 
             <button
