@@ -32,7 +32,7 @@ export function MoleculeNetwork({ className = "" }: { className?: string }) {
       canvas.width = w * dpr;
       canvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const count = Math.round(Math.min(240, (w * h) / 6000));
+      const count = Math.round(Math.min(130, (w * h) / 11000));
       nodes = Array.from({ length: count }, () => ({
         x: Math.random() * w,
         y: Math.random() * h,
