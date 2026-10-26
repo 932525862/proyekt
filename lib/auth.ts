@@ -2,7 +2,7 @@
  * Admin panel himoyasi: login/parol muhit o'zgaruvchilaridan, sessiya — imzolangan cookie (HMAC-SHA256).
  *   ADMIN_LOGIN     — login (standart: "admin")
  *   ADMIN_PASSWORD  — parol (production'da majburiy; lokalda standart "admin123")
- *   AUTH_SECRET     — imzo kaliti (ixtiyoriy; berilmasa paroldan hosil qilinadi — parol o'zgarsa sessiyalar bekor bo'ladi)
+ *   AUTH_SECRET     — production'da majburiy, lokalda ixtiyoriy HMAC imzo kaliti
  * Web Crypto ishlatiladi — proxy.ts va server kodida bir xil ishlaydi.
  */
 export const SESSION_COOKIE = "sp_admin";
@@ -12,7 +12,7 @@ const isProd = process.env.NODE_ENV === "production";
 export const adminLogin = () => process.env.ADMIN_LOGIN || "admin";
 export const adminPassword = () => process.env.ADMIN_PASSWORD || (isProd ? "" : "admin123");
 /** Production'da parol o'rnatilmagan bo'lsa — kirish o'chiq */
-export const loginEnabled = () => adminPassword().length > 0;
+export const loginEnabled = () => adminPassword().length > 0 && (!isProd || Boolean(process.env.AUTH_SECRET));
 export const usingDefaultPassword = () => !process.env.ADMIN_PASSWORD;
 
 const enc = new TextEncoder();

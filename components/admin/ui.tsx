@@ -37,11 +37,16 @@ export function Notice({ tone = "info", children }: { tone?: "info" | "warn" | "
   return <div className={`mb-5 rounded-md border px-4 py-3 text-sm leading-relaxed ${t}`}>{children}</div>;
 }
 
-export function Section({ title, sub, children }: { title: string; sub?: string; children: React.ReactNode }) {
+export function Section({ title, sub, action, children }: { title: string; sub?: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
     <section className={`${card} p-5 sm:p-6`}>
-      <h2 className="text-base font-semibold tracking-tight">{title}</h2>
-      {sub && <p className="mt-0.5 text-[13px] text-muted">{sub}</p>}
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold tracking-tight">{title}</h2>
+          {sub && <p className="mt-0.5 text-[13px] text-muted">{sub}</p>}
+        </div>
+        {action}
+      </div>
       <div className="mt-4 grid gap-4">{children}</div>
     </section>
   );

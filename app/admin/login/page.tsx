@@ -27,7 +27,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/admin/logi
           <p className="mt-1 text-sm text-muted">Mahsulotlar, yo&apos;nalishlar va zayavkalarni boshqarish</p>
           {!loginEnabled() ? (
             <p className="mt-6 rounded-md bg-red-50 p-3 text-sm text-red-700">
-              Kirish o&apos;chirilgan: serverda <b>ADMIN_PASSWORD</b> muhit o&apos;zgaruvchisi o&apos;rnatilmagan.
+              Kirish o&apos;chirilgan: production&apos;da <b>ADMIN_PASSWORD</b> va <b>AUTH_SECRET</b> muhit o&apos;zgaruvchilarini o&apos;rnating.
             </p>
           ) : (
             <Suspense fallback={<LoginForm next="" />}>

@@ -12,8 +12,8 @@ export type Media = { src: string; alt: string; fit?: "contain" | "cover" };
 /** Rasmning xira oldindan ko'rinishi (scripts/placeholders.mjs yaratadi) */
 export const blurFor = (src: string): string | undefined => (placeholders as Record<string, string>)[src];
 
-/** next/image optimizatori qabul qiladigan manzil: lokal fayl yoki Vercel Blob (boshqa tashqi URL — optimizatsiyasiz) */
-export const optimizable = (src: string) => !/^https?:/.test(src) || /\.public\.blob\.vercel-storage\.com\//.test(src);
+/** Next.js built-in image optimizer accepts local files; external object storage is already WebP/CDN-backed. */
+export const optimizable = (src: string) => !/^https?:/.test(src);
 
 /** next/image uchun: oldindan ko'rinish bo'lsa — blur, bo'lmasa — bo'sh */
 export const blurProps = (src: string) => {

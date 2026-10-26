@@ -2,7 +2,7 @@ import "server-only";
 import { company, siteUrl } from "./i18n";
 
 /**
- * Telegram xabarnomalari: TELEGRAM_BOT_TOKEN va TELEGRAM_CHAT_ID (.env.local yoki Vercel → Environment Variables).
+ * Telegram xabarnomalari: TELEGRAM_BOT_TOKEN va TELEGRAM_CHAT_ID (.env.local yoki platform environment variables).
  * Bot guruhga qo'shilgan bo'lishi kerak.
  */
 const token = () => process.env.TELEGRAM_BOT_TOKEN;

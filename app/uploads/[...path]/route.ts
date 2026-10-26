@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { join, normalize } from "node:path";
-import { uploadsDir } from "@/lib/upload";
+import { uploadsDir } from "@/lib/storage-paths";
 
-/** Lokal muhitda admin yuklagan rasmlarni beradi (Vercel'da rasmlar Blob'dan keladi) */
+/** Local diskda saqlangan rasmlarni beradi; Spaces rasmlari o'z public URL'i bilan beriladi. */
 export async function GET(_: Request, { params }: { params: Promise<{ path: string[] }> }) {
   const rel = normalize((await params).path.join("/"));
   if (rel.startsWith("..") || !/^(products|categories)\/[\w.-]+\.webp$/.test(rel)) return new Response("Not found", { status: 404 });

@@ -7,6 +7,7 @@ import { Icon } from "@/components/Icon";
 import type { Spec } from "@/db/schema";
 import type { T } from "@/lib/i18n";
 import { labels, type SpecKey } from "@/lib/specs";
+import { AiTranslateButton } from "./AiTranslateButton";
 import { SubmitButton } from "./buttons";
 import { ImageField } from "./ImageField";
 import { btnGhost, field, label, Section } from "./ui";
@@ -90,7 +91,7 @@ export function ProductForm({ product, categories, defaultGroup, canUpload }: { 
         <ImageField current={product?.image ?? null} fit={product?.imageFit ?? "contain"} canUpload={canUpload} />
       </Section>
 
-      <Section title="Texnik xususiyatlar" sub="Model kartochkasida ko'rinadi. Ruscha/inglizcha bo'sh qolsa — o'zbekchasi ishlatiladi.">
+      <Section title="Texnik xususiyatlar" sub="Model kartochkasida ko'rinadi. Ruscha/inglizcha bo'sh qolsa — o'zbekchasi ishlatiladi." action={<AiTranslateButton keys={["spec"]} />}>
         {specs.length === 0 && <p className="text-sm text-muted">Hozircha xususiyat yo&apos;q.</p>}
         {specs.map((s, i) => (
           <div key={s.key} className="grid gap-2 rounded-md border border-line p-3 sm:grid-cols-[150px_1fr_1fr_1fr_auto] sm:items-center sm:border-0 sm:p-0">
@@ -123,7 +124,7 @@ export function ProductForm({ product, categories, defaultGroup, canUpload }: { 
         </div>
       </Section>
 
-      <Section title="Bosh sahifa" sub="“Laboratoriyalar eng ko'p so'raydigan tizimlar” bo'limida ko'rsatish">
+      <Section title="Bosh sahifa" sub="“Laboratoriyalar eng ko'p so'raydigan tizimlar” bo'limida ko'rsatish" action={featured ? <AiTranslateButton keys={["featuredNote"]} /> : undefined}>
         <label className="flex items-center gap-2 text-sm font-medium">
           <input type="checkbox" name="featured" checked={featured} onChange={(e) => setFeatured(e.target.checked)} className="size-4 accent-[var(--accent)]" />
           Tanlangan mahsulot sifatida ko&apos;rsatish

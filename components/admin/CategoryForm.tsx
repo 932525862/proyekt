@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { saveCategory, type FormState } from "@/app/admin/actions";
 import type { T } from "@/lib/i18n";
+import { AiTranslateButton } from "./AiTranslateButton";
 import { SubmitButton } from "./buttons";
 import { ImageField } from "./ImageField";
 import { btnGhost, field, label, Section } from "./ui";
@@ -71,7 +72,7 @@ export function CategoryForm({ category, nextSort, canUpload }: { category?: Cat
         </div>
       </Section>
 
-      <Section title="Matnlar" sub="Ruscha/inglizcha bo'sh qolsa — o'zbekchasi ishlatiladi">
+      <Section title="Matnlar" sub="Ruscha/inglizcha bo'sh qolsa — o'zbekchasi ishlatiladi" action={<AiTranslateButton keys={["name", "short", "description"]} />}>
         <div className="grid gap-5 lg:grid-cols-3">
           {langs.map(([l, name]) => (
             <div key={l} className="grid content-start gap-3 rounded-md border border-line p-4">

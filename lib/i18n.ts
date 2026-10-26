@@ -117,8 +117,8 @@ const uz = {
   },
   about: {
     eyebrow: "Kompaniya",
-    title: "Distribyutor emas — analitik hamkor",
-    p1: "Spectrum Peak LLC 2022-yilda Toshkentda olimlar va tadbirkorlar tomonidan tashkil etilgan. Biz laboratoriya uskunalari, sarf materiallari, kimyoviy reagentlar va sertifikatlangan standart namunalarni yetakchi ishlab chiqaruvchilardan yetkazib beramiz.",
+    title: "Spectrum Peak LLC — ilm-fan va biznesni birlashtirgan ishonchli hamkoringiz!",
+    p1: "2022-yilda Toshkentda asos solingan kompaniyamiz laboratoriyalar uchun barcha turdagi yuqori texnologiyali uskunalar, sarf materiallari, kimyoviy reagentlar va sertifikatlangan standart namunalarni (CRM) yetkazib beradi. Biz bilan laboratoriyangizni eng so'nggi jahon standartlari darajasida jihozlang.",
     p2: "Lekin asosiy qadriyatimiz — bilim. Mijozlarimizga ishlab chiqarish va sifat nazoratidagi analitik vazifalarni xalqaro standartlar asosida hal qilishda yordam beramiz.",
     est: "Tashkil etilgan",
     mission: "Missiya",
@@ -293,8 +293,8 @@ const ru: Dictionary = {
   },
   about: {
     eyebrow: "Компания",
-    title: "Не просто дистрибьютор — аналитический партнёр",
-    p1: "Spectrum Peak LLC основана в 2022 году в Ташкенте учёными и предпринимателями. Мы поставляем лабораторное оборудование, расходные материалы, химические реактивы и сертифицированные стандартные образцы ведущих производителей.",
+    title: "Spectrum Peak LLC — ваш надёжный партнёр, объединяющий науку и бизнес!",
+    p1: "Наша компания, основанная в 2022 году в Ташкенте, поставляет для лабораторий все виды высокотехнологичного оборудования, расходные материалы, химические реактивы и сертифицированные стандартные образцы (CRM). Оснастите свою лабораторию в соответствии с новейшими мировыми стандартами вместе с нами.",
     p2: "Но главная наша ценность — знания. Мы помогаем клиентам решать аналитические задачи производства и контроля качества по международным стандартам.",
     est: "Основана",
     mission: "Миссия",
@@ -467,8 +467,8 @@ const en: Dictionary = {
   },
   about: {
     eyebrow: "Company",
-    title: "Not just a distributor — an analytical partner",
-    p1: "Spectrum Peak LLC was founded in Tashkent in 2022 by scientists and entrepreneurs. We supply laboratory equipment, consumables, chemicals and certified reference materials from leading manufacturers.",
+    title: "Spectrum Peak LLC — your reliable partner uniting science and business!",
+    p1: "Founded in Tashkent in 2022, our company supplies laboratories with all types of high-tech equipment, consumables, chemical reagents and certified reference materials (CRM). Equip your laboratory to the latest world standards with us.",
     p2: "But our real value is knowledge. We help clients solve analytical challenges in production and quality control according to international standards.",
     est: "Founded",
     mission: "Mission",

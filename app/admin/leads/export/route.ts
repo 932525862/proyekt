@@ -7,7 +7,12 @@ export async function GET(request: Request) {
   if (!(await verifySessionToken((await cookies()).get(SESSION_COOKIE)?.value))) return new Response("Unauthorized", { status: 401 });
   const sp = new URL(request.url).searchParams;
   const leads = await adminLeads({ status: sp.get("status") ?? "all", q: sp.get("q") ?? "" });
-  const cell = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const cell = (v: unknown) => {
+    const raw = String(v ?? "");
+    // CSV quoting alone does not stop spreadsheet formula execution.
+    const safe = /^[\t\r\n]/.test(raw) || /^[\u0000-\u0020]*[=+\-@＝＋－＠]/u.test(raw) ? `'${raw}` : raw;
+    return `"${safe.replace(/"/g, '""')}"`;
+  };
   const head = ["ID", "Sana", "Holat", "Ism", "Tashkilot", "Telefon", "Email", "Yo'nalish", "Model", "Xabar", "Til", "Izoh"];
   const lines = leads.map((l) =>
     [l.id, l.createdAt.toISOString(), leadStatuses.find((s) => s.value === l.status)?.label, l.name, l.company, l.phone, l.email, l.interest, l.model, l.message, l.lang, l.note]

@@ -22,7 +22,7 @@ export const nbsp = (s: string) => s.replace(/ /g, "\u00a0");
 const toDataUrl = (buf: Buffer) => `data:image/png;base64,${buf.toString("base64")}`;
 const markP = sharp(Buffer.from(markSvg({ dark: true }))).resize({ width: 220 }).png().toBuffer().then(toDataUrl);
 
-/** Rasmni (public/ yoki tashqi URL — masalan Vercel Blob) Satori qabul qiladigan PNG'ga o'giradi */
+/** Rasmni (public/ yoki tashqi URL — masalan DigitalOcean Spaces) Satori qabul qiladigan PNG'ga o'giradi */
 export async function publicImage(src: string, width = 520) {
   const input = /^https?:/.test(src) ? Buffer.from(await (await fetch(src)).arrayBuffer()) : join(process.cwd(), "public", src);
   const buf = await sharp(input).resize({ width, height: width, fit: "inside", withoutEnlargement: true }).png().toBuffer();

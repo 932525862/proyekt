@@ -2,16 +2,16 @@ import { AdminNav } from "@/components/admin/AdminNav";
 import { isPersistent } from "@/db";
 import { leadCounts } from "@/lib/admin-data";
 import { requireAdmin } from "@/lib/admin-session";
-import { usingDefaultPassword } from "@/lib/auth";
+import { loginEnabled } from "@/lib/auth";
 import { uploadsEnabled } from "@/lib/upload";
 
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
   const counts = await leadCounts();
   const warnings = [
-    !isPersistent && "Doimiy ma'lumotlar bazasi ulanmagan: o'zgarishlar va zayavkalar server qayta ishga tushganda yo'qoladi. Vercel → Storage → Turso ni ulang (TURSO_DATABASE_URL, TURSO_AUTH_TOKEN).",
-    !uploadsEnabled && "Rasm yuklash o'chiq: Vercel → Storage → Blob ni ulang (BLOB_READ_WRITE_TOKEN). Hozircha rasm uchun URL kiritish mumkin.",
-    usingDefaultPassword() && process.env.VERCEL && "Standart parol ishlatilmoqda — ADMIN_PASSWORD ni o'rnating.",
+    !isPersistent && "Doimiy ma'lumotlar bazasi ulanmagan: App Platform'dagi vaqtinchalik diskka yozuvlar saqlanmaydi. Turso/libSQL ulab TURSO_DATABASE_URL va TURSO_AUTH_TOKEN ni o'rnating.",
+    !uploadsEnabled && "Rasm yuklash o'chiq: DigitalOcean Spaces sozlang. Hozircha rasm URL manzilini kiritishingiz mumkin.",
+    !loginEnabled() && (process.env.VERCEL || process.env.DO_APP_PLATFORM) && "ADMIN_PASSWORD va AUTH_SECRET o'rnatilmagan — admin kirishi o'chiq.",
   ].filter(Boolean) as string[];
 
   return (

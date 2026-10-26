@@ -10,9 +10,10 @@ import { slugify } from "@/db/seed";
 import { requireAdmin } from "@/lib/admin-session";
 import { adminLogin, adminPassword, createSessionToken, loginEnabled, safeEqual, SESSION_COOKIE } from "@/lib/auth";
 import { CATALOG_TAG, SERVICES_TAG, SETTINGS_TAG } from "@/lib/data";
-import type { T } from "@/lib/i18n";
+import { translateMissing, type TranslateItem } from "@/lib/gemini";
+import type { Locale, T } from "@/lib/i18n";
 import type { SpecKey } from "@/lib/specs";
-import { saveImage } from "@/lib/upload";
+import { removeLocalImageFile, saveImage } from "@/lib/upload";
 
 export type FormState = { ok?: boolean; error?: string; message?: string };
 
@@ -24,6 +25,7 @@ function catalogChanged() {
 const str = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 const num = (f: FormData, k: string, d = 0) => (Number.isFinite(Number(f.get(k))) && str(f, k) !== "" ? Number(f.get(k)) : d);
 const bool = (f: FormData, k: string) => f.get(k) === "on" || f.get(k) === "true";
+const isLeadStatus = (value: string): value is LeadStatus => ["new", "in_progress", "done", "archived"].includes(value);
 /** name_uz / name_ru / name_en → T (bo'sh tarjimalar o'zbekchadan olinadi) */
 const tri = (f: FormData, k: string): T => {
   const uz = str(f, `${k}_uz`);
@@ -39,6 +41,21 @@ async function resolveImage(f: FormData, folder: "products" | "categories", base
   return url || current;
 }
 
+/** Remove a local upload only after no product or category references it. */
+async function cleanupUnusedLocalImage(image: string | null | undefined) {
+  if (!image || !image.startsWith("/uploads/")) return;
+  const [productRef, categoryRef] = await Promise.all([
+    db.select({ id: schema.products.id }).from(schema.products).where(eq(schema.products.image, image)).limit(1).get(),
+    db.select({ slug: schema.categories.slug }).from(schema.categories).where(eq(schema.categories.image, image)).limit(1).get(),
+  ]);
+  if (productRef || categoryRef) return;
+  try {
+    await removeLocalImageFile(image);
+  } catch (error) {
+    console.error("Unused uploaded image could not be removed:", error);
+  }
+}
+
 function done(message: string): FormState {
   return { ok: true, message };
 }
@@ -49,7 +66,7 @@ function fail(e: unknown): FormState {
 /* ───────────────────────── Kirish ───────────────────────── */
 
 export async function login(_: FormState, f: FormData): Promise<FormState> {
-  if (!loginEnabled()) return { error: "Admin kirish o'chirilgan: serverda ADMIN_PASSWORD o'rnatilmagan." };
+  if (!loginEnabled()) return { error: "Admin kirish o'chirilgan: production'da ADMIN_PASSWORD va AUTH_SECRET o'rnating." };
   const okUser = await safeEqual(str(f, "login"), adminLogin());
   const okPass = await safeEqual(String(f.get("password") ?? ""), adminPassword());
   if (!okUser || !okPass) {
@@ -117,6 +134,7 @@ export async function saveProduct(_: FormState, f: FormData): Promise<FormState>
 
     if (existing) {
       await db.update(schema.products).set(values).where(eq(schema.products.id, existing.id));
+      if (existing.image !== values.image) await cleanupUnusedLocalImage(existing.image);
       catalogChanged();
       refresh();
       return done("Saqlandi. Saytda darhol yangilandi.");
@@ -139,7 +157,10 @@ export async function saveProduct(_: FormState, f: FormData): Promise<FormState>
 
 export async function deleteProduct(f: FormData) {
   await requireAdmin();
-  await db.delete(schema.products).where(eq(schema.products.id, str(f, "id")));
+  const id = str(f, "id");
+  const product = await db.select({ image: schema.products.image }).from(schema.products).where(eq(schema.products.id, id)).get();
+  await db.delete(schema.products).where(eq(schema.products.id, id));
+  await cleanupUnusedLocalImage(product?.image);
   catalogChanged();
   if (str(f, "back")) redirect(str(f, "back"));
   refresh();
@@ -199,6 +220,7 @@ export async function saveCategory(_: FormState, f: FormData): Promise<FormState
     };
     if (existing) {
       await db.update(schema.categories).set(values).where(eq(schema.categories.slug, slug));
+      if (existing.image !== values.image) await cleanupUnusedLocalImage(existing.image);
       catalogChanged();
       refresh();
       return done("Saqlandi. Saytda darhol yangilandi.");
@@ -216,11 +238,17 @@ export async function saveCategory(_: FormState, f: FormData): Promise<FormState
 export async function deleteCategory(f: FormData) {
   await requireAdmin();
   const slug = str(f, "slug");
+  const [category, products] = await Promise.all([
+    db.select({ image: schema.categories.image }).from(schema.categories).where(eq(schema.categories.slug, slug)).get(),
+    db.select({ image: schema.products.image }).from(schema.products).where(eq(schema.products.categorySlug, slug)),
+  ]);
+  const images = new Set([category?.image, ...products.map((product) => product.image)].filter((image): image is string => Boolean(image)));
   await db.batch([
     db.delete(schema.products).where(eq(schema.products.categorySlug, slug)),
     db.delete(schema.groups).where(eq(schema.groups.categorySlug, slug)),
     db.delete(schema.categories).where(eq(schema.categories.slug, slug)),
   ]);
+  for (const image of images) await cleanupUnusedLocalImage(image);
   catalogChanged();
   redirect("/admin/categories?deleted=1");
 }
@@ -258,7 +286,7 @@ export async function updateLead(f: FormData) {
   const id = Number(f.get("id"));
   const status = str(f, "status") as LeadStatus;
   const patch: Partial<typeof schema.leads.$inferInsert> = { updatedAt: new Date() };
-  if (["new", "in_progress", "done", "archived"].includes(status)) patch.status = status;
+  if (isLeadStatus(status)) patch.status = status;
   if (f.has("note")) patch.note = str(f, "note") || null;
   await db.update(schema.leads).set(patch).where(eq(schema.leads.id, id));
   refresh();
@@ -289,7 +317,8 @@ export async function saveContacts(_: FormState, f: FormData): Promise<FormState
 /** Statusni bir bosishda o'zgartirish (ro'yxatdan) */
 export async function quickLeadStatus(f: FormData) {
   await requireAdmin();
-  const status = str(f, "status") as LeadStatus;
+  const status = str(f, "status");
+  if (!isLeadStatus(status)) return;
   await db
     .update(schema.leads)
     .set({ status, updatedAt: new Date() })
@@ -370,4 +399,18 @@ export async function saveServicesSection(_: FormState, f: FormData): Promise<Fo
   updateTag(SERVICES_TAG);
   refresh();
   return done("Bo'lim matni saqlandi. Saytda darhol yangilandi.");
+}
+
+/* ───────────────────────── AI tarjima ───────────────────────── */
+
+/** Bo'sh qolgan tillarni Gemini orqali to'ldiradi (faqat admin; tugma bosilganda ishlaydi) */
+export async function aiTranslate(items: TranslateItem[]): Promise<{ result?: Record<string, Partial<Record<Locale, string>>>; error?: string }> {
+  await requireAdmin();
+  const todo = items.filter((i) => i.uz.trim() || i.ru.trim() || i.en.trim()).slice(0, 80);
+  if (todo.length === 0) return { error: "Avval kamida bitta tilda matn kiriting." };
+  try {
+    return { result: await translateMissing(todo) };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
 }

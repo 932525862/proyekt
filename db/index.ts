@@ -5,24 +5,30 @@ import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import * as schema from "./schema";
 import { seedRows, seedServiceRows } from "./seed";
+import { dataDir } from "@/lib/storage-paths";
 
 /**
  * Ma'lumotlar bazasi ulanishi.
  *  - Turso / libSQL (production): TURSO_DATABASE_URL (+ TURSO_AUTH_TOKEN) yoki DATABASE_URL
- *  - Vercel'da baza ulanmagan bo'lsa: /tmp dagi vaqtinchalik fayl (sayt ishlaydi, o'zgarishlar saqlanmaydi)
+ *  - DigitalOcean Droplet: /var/lib/novalab/spectrum.db (NOVALAB_DATA_DIR)
+ *  - Vercel / DigitalOcean App Platform'da baza ulanmagan bo'lsa: /tmp dagi vaqtinchalik fayl
  *  - Lokal: .data/spectrum.db (hech narsa o'rnatish shart emas)
  */
-const remoteUrl = process.env.TURSO_DATABASE_URL ?? process.env.DATABASE_URL;
-const onVercel = Boolean(process.env.VERCEL);
+const remoteUrl = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL || undefined;
+const onEphemeralPlatform = Boolean(process.env.VERCEL) || process.env.DO_APP_PLATFORM === "1";
+
+if (remoteUrl && !/^(libsql|https?|file):/.test(remoteUrl)) {
+  throw new Error("DATABASE_URL must point to a libSQL/Turso database (libsql://, https://, or file:).");
+}
 
 function localFileUrl() {
-  const dir = onVercel ? "/tmp" : join(process.cwd(), ".data");
+  const dir = onEphemeralPlatform ? "/tmp" : dataDir;
   mkdirSync(dir, { recursive: true });
   return `file:${join(dir, "spectrum.db")}`;
 }
 
 /** Doimiy (production) baza ulanganmi — admin panel ogohlantirishi uchun */
-export const isPersistent = Boolean(remoteUrl) || !onVercel;
+export const isPersistent = Boolean(remoteUrl && !(onEphemeralPlatform && remoteUrl.startsWith("file:"))) || !onEphemeralPlatform;
 
 const client = createClient({ url: remoteUrl ?? localFileUrl(), authToken: process.env.TURSO_AUTH_TOKEN ?? process.env.DATABASE_AUTH_TOKEN });
 export const db = drizzle(client, { schema });
